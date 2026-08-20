@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+config.json
+*.session
+qr.png
+qr_url.txt
+members_*.csv
