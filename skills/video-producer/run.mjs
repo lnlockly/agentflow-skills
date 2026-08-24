@@ -72,9 +72,10 @@ const theme = THEMES.includes(flags.theme) ? flags.theme : '';
 const DIRECTOR_SYSTEM = readFileSync(join(HERE, 'director.prompt.md'), 'utf8');
 
 async function director() {
-  const base = (process.env.OPENAI_BASE_URL || '').replace(/\/$/, '');
+  let base = (process.env.OPENAI_BASE_URL || process.env.LLM_BASE_URL || '').replace(/\/$/, '');
+  if (base && !/\/v1$/.test(base)) base += '/v1';
   const key = process.env.OPENAI_API_KEY || process.env.LLM_KEY;
-  if (!base || !key) throw new Error('no LLM gateway env (OPENAI_BASE_URL/OPENAI_API_KEY)');
+  if (!base || !key) throw new Error('no LLM gateway env (OPENAI_BASE_URL/LLM_BASE_URL + key)');
   const model = process.env.DIRECTOR_MODEL || process.env.LLM_MODEL || 'gpt-5.5';
   const user = JSON.stringify({ topic: topicArg || undefined, theme: theme || undefined, durationMs: (captions.at(-1)?.endMs) || 15000, transcript });
   const res = await fetch(`${base}/chat/completions`, {
@@ -112,16 +113,32 @@ function fallbackStory() {
 }
 
 log('3/5 director (gpt-5.5)');
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let story;
-try {
-  story = await director();
-  log(`director OK: theme=${story.theme} scenes=${story.scenes.length}`);
-} catch (e) {
-  log(`director FAILED (${e.message}) → deterministic fallback`);
+for (let attempt = 1; attempt <= 3 && !story; attempt++) {
+  try {
+    story = await director();
+    log(`director OK (try ${attempt}): theme=${story.theme} scenes=${story.scenes.length}`);
+  } catch (e) {
+    log(`director try ${attempt} failed: ${e.message}`);
+    if (attempt < 3) await sleep(2000 * attempt);
+  }
+}
+if (!story) {
+  log('director exhausted retries → deterministic fallback');
   story = fallbackStory();
 }
 story.src = `${id}.mp4`;
 if (theme) story.theme = theme;
+// Normalize: some LLMs nest scene fields under `data` — flatten it so the
+// compositor (which spreads the scene flat) always gets top-level props.
+story.scenes = (story.scenes || []).map((s) => {
+  if (s && typeof s.data === 'object' && s.data && !Array.isArray(s.data)) {
+    const { data, ...rest } = s;
+    return { ...rest, ...data };
+  }
+  return s;
+});
 const storyFile = join(PUB, `story-${id}.json`);
 writeFileSync(storyFile, JSON.stringify(story, null, 2));
 
