@@ -4,7 +4,7 @@
 id: landing-builder
 name: Строитель лендингов
 tagline: Опиши продукт — соберу красивый лендинг из готовых блоков и опубликую по ссылке.
-category: growth
+category: landings
 tier: premium
 model: gpt-5.5
 
