@@ -1,0 +1,14 @@
+{
+  "name": "video-studio-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Per-agent stdio MCP server exposing discrete video tools over the proven video-producer Remotion render.",
+  "bin": { "video-studio-mcp": "./mcp-server.mjs" },
+  "scripts": {
+    "start": "node mcp-server.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}

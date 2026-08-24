@@ -1,0 +1,58 @@
+# ---------------------------------------------------------------------------
+# Register the video-studio MCP server PER-AGENT (Recipe A — direct config).
+#
+# Merge this `mcp_servers:` block into the agent's $HERMES_HOME/config.yaml
+# (Hermes reads mcp_servers there at agent-build time via
+# tools/mcp_tool.py::_load_mcp_config; ${VAR} placeholders are interpolated from
+# the pod's active .env). Then run  /reload-mcp  in-session (or start a new
+# session) to rebuild the tool surface. Tools appear to the model as
+#   mcp__video__transcribe, mcp__video__render_reel, mcp__video__send_video, …
+#
+# Why direct config (not a portable plugin) for the video server:
+#   * inherits the pod's REAL env directly — the gpt-5.5 / gpt-image-2 gateway
+#     (OPENAI_*), PEXELS_API_KEY, and the bot's own TELEGRAM_BOT_TOKEN;
+#   * allows an absolute cwd and a long `timeout` for ~60s renders;
+#   * no plugins.enabled opt-in needed.
+#
+# Prereq: run  bash <skills>/video-studio/setup.sh  once (installs the MCP SDK,
+# the Remotion project deps, and the face-tracking python wheels). Everything
+# persists on the overlay volume, so it survives pod redeploys.
+# ---------------------------------------------------------------------------
+mcp_servers:
+  video:
+    command: "node"                       # PATH-resolved; falls back to $HERMES_HOME/node/bin
+    args: ["${userHome}/.hermes/skills/video-studio/mcp-server.mjs"]
+    cwd: "${userHome}/.hermes/skills/video-studio"
+    env:
+      # The proven Remotion render project (the video-producer hub skill).
+      VIDEO_STUDIO_DIR: "${userHome}/.hermes/skills/video-producer"
+      # LLM + image gateway the pod already uses (gpt-5.5 / gpt-image-2).
+      OPENAI_BASE_URL: "${OPENAI_BASE_URL}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      # Optional stock search.
+      PEXELS_API_KEY: "${PEXELS_API_KEY}"
+      # The bot this pod self-polls with — send_video delivers through it.
+      TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN}"
+      # Optional: raise for beefier pods to speed up rendering.
+      RENDER_CONCURRENCY: "2"
+    timeout: 900            # long renders/transcribes — default 300s is too short
+    connect_timeout: 60
+    # Optional allowlist. Omit to expose all tools.
+    tools:
+      include:
+        - transcribe
+        - analyze_highlights
+        - cut_clip
+        - face_crop
+        - generate_image
+        - search_stock
+        - render_reel
+        - send_video
+        - job_status
+
+# Equivalent CLI (writes the same block):
+#   hermes mcp add video node ${userHome}/.hermes/skills/video-studio/mcp-server.mjs \
+#     --cwd ${userHome}/.hermes/skills/video-studio --timeout 900 \
+#     --env VIDEO_STUDIO_DIR=... --env OPENAI_BASE_URL=... --env OPENAI_API_KEY=... \
+#     --env PEXELS_API_KEY=... --env TELEGRAM_BOT_TOKEN=...
+#   # then: /reload-mcp
