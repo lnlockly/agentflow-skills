@@ -1,0 +1,9 @@
+node_modules/
+out/
+input/
+public/*
+!public/.gitkeep
+whisper.cpp/
+.setup-done
+*.bak
+temp/
