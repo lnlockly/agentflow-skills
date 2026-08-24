@@ -1,0 +1,18 @@
+{
+  "theme": "listicle",
+  "topic": "7 приёмов, чтобы Reels залетел",
+  "chapters": ["Старт", "Приёмы 7–4", "Приёмы 3–1", "Итог"],
+  "scenes": [
+    { "type": "SectionEyebrow", "fromMs": 0, "toMs": 2400, "kicker": "ТОП-ФАКТЫ", "text": "7 приёмов, чтобы Reels залетел", "meta": "0/7", "align": "left" },
+    { "type": "PunchWord", "fromMs": 2400, "toMs": 4600, "word": "СЧИТАЕМ С 7 ДО 1" },
+    { "type": "CountItem", "fromMs": 4600, "toMs": 7200, "n": 7, "title": "Первые 3 секунды", "text": "Цепляй до того, как палец смахнёт" },
+    { "type": "CountItem", "fromMs": 7200, "toMs": 9800, "n": 6, "title": "Один кадр — одна мысль", "text": "Не пихай всё в один план" },
+    { "type": "CountItem", "fromMs": 9800, "toMs": 12400, "n": 5, "title": "Субтитры всегда", "text": "85% смотрят без звука" },
+    { "type": "CountItem", "fromMs": 12400, "toMs": 15000, "n": 4, "title": "Вертикаль 9:16", "text": "Заполняй весь экран целиком" },
+    { "type": "CountItem", "fromMs": 15000, "toMs": 17600, "n": 3, "title": "Крючок в тексте", "text": "Вопрос в первой строке поста" },
+    { "type": "CountItem", "fromMs": 17600, "toMs": 20200, "n": 2, "title": "Ритм монтажа", "text": "Склейка каждые 2–3 секунды" },
+    { "type": "CountItem", "fromMs": 20200, "toMs": 23200, "n": 1, "title": "Призыв в конце", "text": "Скажи прямо, что делать дальше" },
+    { "type": "StatHud", "fromMs": 23200, "toMs": 26200, "label": "ПРИЁМОВ", "value": 7, "caption": "начни с одного сегодня" },
+    { "type": "PunchWord", "fromMs": 26200, "toMs": 29200, "word": "СОХРАНИ", "sub": "чтобы не забыть" }
+  ]
+}

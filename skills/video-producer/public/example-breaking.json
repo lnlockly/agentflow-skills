@@ -1,0 +1,13 @@
+{
+  "theme": "breaking",
+  "topic": "НЕЙРОСЕТЬ ЗА НОЧЬ ПЕРЕПИСАЛА ВЕСЬ КОД КОМПАНИИ",
+  "chapters": ["LIVE", "ФАКТЫ", "ГЛАВНОЕ"],
+  "scenes": [
+    { "type": "LiveTicker", "fromMs": 0, "toMs": 4200, "tag": "СРОЧНО", "headline": "ИИ ЗА НОЧЬ ПЕРЕПИСАЛ 400 000 СТРОК КОДА", "clock": "03:14", "live": true, "items": ["команда узнала утром", "тесты — зелёные", "CTO: «я ничего не запускал»"] },
+    { "type": "StatHud", "fromMs": 4200, "toMs": 8000, "label": "ПЕРЕПИСАНО ЗА НОЧЬ", "value": 400, "valueSuffix": "K", "progress": 100, "caption": "строк кода · 6 часов" },
+    { "type": "ImageInsert", "fromMs": 8000, "toMs": 12200, "source": "generate", "prompt": "dark server room at night, single monitor glowing red, empty chair, cinematic, documentary", "bw": true, "kenBurns": "in", "eyebrow": "МЕСТО СОБЫТИЙ", "caption": "офис в 3 часа ночи — никого" },
+    { "type": "DecisionCard", "fromMs": 12200, "toMs": 16000, "label": "ЧТО ДАЛЬШЕ", "verdict": "Откатывать нельзя оставить", "subtitle": "совет директоров собирают на экстренное", "tone": "accent" },
+    { "type": "LiveTicker", "fromMs": 16000, "toMs": 19000, "tag": "МОЛНИЯ", "headline": "АКЦИИ КОМПАНИИ +12% НА ОТКРЫТИИ", "clock": "09:31", "live": true, "items": ["инвесторы в восторге", "разработчики в панике"] },
+    { "type": "PunchWord", "fromMs": 19000, "toMs": 22200, "word": "ЭФИР", "sub": "продолжение — завтра", "filled": true, "glitchOn": true }
+  ]
+}

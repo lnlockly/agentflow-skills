@@ -1,0 +1,18 @@
+{
+  "theme": "storytelling",
+  "topic": "Как районная пекарня чуть не закрылась — и вернула людей",
+  "chapters": ["Как всё было", "Провал", "Перелом", "Что сейчас"],
+  "scenes": [
+    { "type": "SectionEyebrow", "fromMs": 0, "toMs": 2600, "kicker": "ИСТОРИЯ", "text": "Как пекарня чуть не закрылась — и вернулась", "align": "left" },
+    { "type": "StoryStepper", "fromMs": 2600, "toMs": 6600, "steps": [ { "label": "2019", "text": "Очередь на улице" }, { "label": "2022", "text": "Пусто в зале" }, { "label": "Сегодня", "text": "Снова полно" } ] },
+    { "type": "VoiceBubble", "fromMs": 6600, "toMs": 10600, "sender": "Марина, владелица", "quote": "Я думала, дело в цене. Оказалось — в тишине.", "durationLabel": "0:05", "side": "left", "silhouette": true },
+    { "type": "ChatBubble", "fromMs": 10600, "toMs": 14000, "author": "Клиент", "text": "Вы вообще ещё работаете? Ничего же не постите 😕", "side": "left", "typing": true },
+    { "type": "Stamp", "fromMs": 14000, "toMs": 16200, "text": "ПРОВАЛ", "tone": "bad" },
+    { "type": "DecisionCard", "fromMs": 16200, "toMs": 19600, "label": "ТОЧКА ВЫБОРА", "verdict": "Закрыться или меняться", "subtitle": "выбрали — начать говорить с людьми", "tone": "accent" },
+    { "type": "BeforeAfter", "fromMs": 19600, "toMs": 23200, "before": { "label": "Было", "text": "0 постов в неделю" }, "after": { "label": "Стало", "text": "1 живое видео каждый день" } },
+    { "type": "Checklist", "fromMs": 23200, "toMs": 27000, "title": "ЧТО ИЗМЕНИЛИ ЗА МЕСЯЦ", "items": [ { "text": "Показали лица пекарей", "ok": true }, { "text": "Ответили каждому в директ", "ok": true }, { "text": "Сняли утро на кухне", "ok": true } ] },
+    { "type": "StatHud", "fromMs": 27000, "toMs": 30500, "label": "ЗАКАЗОВ", "value": 180, "valueSuffix": "%", "progress": 90, "caption": "+180% за 3 недели" },
+    { "type": "VoiceBubble", "fromMs": 30500, "toMs": 34500, "sender": "Марина", "quote": "Люди возвращаются не за хлебом. За тем, что их помнят.", "durationLabel": "0:04", "side": "left", "silhouette": true, "highlightWords": ["помнят"] },
+    { "type": "PunchWord", "fromMs": 34500, "toMs": 37500, "word": "РАССКАЖИ СВОЮ", "sub": "историю" }
+  ]
+}

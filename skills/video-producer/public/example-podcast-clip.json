@@ -1,0 +1,15 @@
+{
+  "theme": "podcast-clip",
+  "topic": "Почему найм по резюме не работает — Максим Орлов (@БизнесБезВоды)",
+  "chapters": ["Проблема", "Причина", "Что делать"],
+  "scenes": [
+    { "type": "SpeakerLower", "fromMs": 0, "toMs": 3500, "name": "Максим Орлов", "role": "HR-директор · 12 лет в найме", "show": "@БизнесБезВоды", "persistent": true },
+    { "type": "SectionEyebrow", "fromMs": 3500, "toMs": 6500, "kicker": "ПРОБЛЕМА", "index": 1, "text": "90% резюме проходят фильтр — нанимают не тех", "align": "left" },
+    { "type": "StatHud", "fromMs": 6500, "toMs": 10000, "label": "РЕШЕНИЙ О НАЙМЕ — ИНТУИЦИЯ", "value": 9, "valueSuffix": "/10", "progress": 90, "caption": "а не данные" },
+    { "type": "PullLine", "fromMs": 10000, "toMs": 14000, "text": "Резюме показывает прошлое. Вам нужен человек для будущего.", "quoteTicks": true },
+    { "type": "ChatBubble", "fromMs": 14000, "toMs": 17500, "author": "Нанимающий менеджер", "text": "На бумаге — идеальный. Первую реальную задачу завалил.", "side": "left", "typing": true },
+    { "type": "Checklist", "fromMs": 17500, "toMs": 22000, "title": "ЧТО ДЕЛАТЬ", "items": [ { "text": "Тестовое = реальный кусок работы" }, { "text": "Смотри КАК думает, не ЧТО знает" }, { "text": "Референсы обзванивай сам" } ] },
+    { "type": "PunchWord", "fromMs": 22000, "toMs": 25000, "word": "НАНИМАЙ ПРОЦЕСС", "sub": "а не резюме" },
+    { "type": "SpeakerLower", "fromMs": 25000, "toMs": 28000, "name": "Максим Орлов", "show": "@БизнесБезВоды", "cta": "Полный выпуск — по ссылке" }
+  ]
+}

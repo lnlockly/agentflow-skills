@@ -1,0 +1,14 @@
+{
+  "theme": "facts-curious",
+  "topic": "5 неожиданных фактов о кофе",
+  "chapters": ["Факт 1", "Факт 2", "Факт 3", "Факт 4", "Факт 5"],
+  "scenes": [
+    { "type": "SectionEyebrow", "fromMs": 0, "toMs": 2600, "kicker": "А ВЫ ЗНАЛИ?", "text": "5 фактов о кофе", "meta": "0/5", "align": "center" },
+    { "type": "FactCard", "fromMs": 2600, "toMs": 6000, "num": 1, "stat": "2,25 млрд", "context": "чашек кофе выпивает мир каждый день", "source": "ICO", "counter": "1/5" },
+    { "type": "MythBuster", "fromMs": 6000, "toMs": 9400, "myth": "Кофе обезвоживает", "fact": "В умеренных дозах — наоборот, добавляет жидкость", "counter": "2/5" },
+    { "type": "FactCard", "fromMs": 9400, "toMs": 12800, "num": 3, "stat": "≈330 лет", "context": "страховому рынку Lloyd’s — он вырос из лондонской кофейни", "source": "Lloyd’s of London", "counter": "3/5" },
+    { "type": "StatChips", "fromMs": 12800, "toMs": 16000, "title": "КОФЕИНА В ЧАШКЕ", "chips": [ { "label": "Фильтр ≈95 мг", "accent": true }, { "label": "Эспрессо ≈63 мг" }, { "label": "Кола ≈34 мг" } ] },
+    { "type": "FactCard", "fromMs": 16000, "toMs": 19400, "num": 5, "stat": "«теплее»", "context": "с тёплой чашкой люди оценивают собеседника как более дружелюбного", "source": "Science, 2008", "counter": "5/5" },
+    { "type": "Stamp", "fromMs": 19400, "toMs": 22400, "text": "ФАКТ ✔", "tone": "accent" }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "theme": "offer",
+  "topic": "AgentFlow-агент: сотрудник, который отвечает клиентам 24/7",
+  "chapters": ["Боль", "Решение", "Выгоды", "Оффер"],
+  "scenes": [
+    { "type": "SectionEyebrow", "fromMs": 0, "toMs": 2200, "kicker": "ОФФЕР", "text": "Сотрудник, который не спит", "align": "left" },
+    { "type": "PunchWord", "fromMs": 2200, "toMs": 4600, "word": "УСТАЛ ОТВЕЧАТЬ В 2 НОЧИ?" },
+    { "type": "ChatBubble", "fromMs": 4600, "toMs": 7600, "author": "Клиент · 03:14", "text": "Здравствуйте! Ещё актуально?", "side": "left", "typing": true },
+    { "type": "RelationCards", "fromMs": 7600, "toMs": 11600, "left": { "title": "Без агента", "items": ["Ответ через 6 часов", "Лиды остывают", "Ты в телефоне 24/7"] }, "right": { "title": "С AgentFlow", "items": ["Ответ за 5 секунд", "Лиды в CRM", "Ты свободен"] } },
+    { "type": "Checklist", "fromMs": 11600, "toMs": 15200, "title": "ЧТО ОН ДЕЛАЕТ", "items": [ { "text": "Отвечает и квалифицирует", "ok": true }, { "text": "Записывает на встречу", "ok": true }, { "text": "Помнит каждого клиента", "ok": true } ] },
+    { "type": "StatChips", "fromMs": 15200, "toMs": 18400, "title": "ВЫГОДЫ", "chips": [ { "label": "5 СЕК — ответ" }, { "label": "24/7 на связи", "accent": true }, { "label": "×3 конверсия" } ] },
+    { "type": "Stamp", "fromMs": 18400, "toMs": 21000, "text": "14 ДНЕЙ ГАРАНТИИ", "tone": "ok" },
+    { "type": "OfferCard", "fromMs": 21000, "toMs": 25000, "plan": "AgentFlow Старт", "price": "3 990 ₽/мес", "anchor": "вместо 15 000 ₽ за менеджера", "cta": "Взять агента", "trust": "Отмена в 1 клик, без договора", "badge": "−73%" },
+    { "type": "VoiceBubble", "fromMs": 25000, "toMs": 28500, "sender": "Сергей, автосервис", "quote": "Окупился за первую неделю. Больше не теряю заявки ночью.", "durationLabel": "0:05", "side": "left", "silhouette": true },
+    { "type": "PunchWord", "fromMs": 28500, "toMs": 31500, "word": "ЗАБИРАЙ →", "filled": true }
+  ]
+}

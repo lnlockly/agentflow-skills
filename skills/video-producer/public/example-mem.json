@@ -1,0 +1,15 @@
+{
+  "theme": "mem",
+  "topic": "КАК Я «ПРОСТО СПРОСИЛ» У НАЧАЛЬНИКА ПРО ПРЕМИЮ",
+  "chapters": ["СЕТАП", "ПОВОРОТ", "ПАНЧ"],
+  "scenes": [
+    { "type": "SectionEyebrow", "fromMs": 0, "toMs": 1600, "kicker": "МЕМ", "index": 1, "meta": "ОФИС", "text": "обычный понедельник", "align": "left" },
+    { "type": "ChatBubble", "fromMs": 1600, "toMs": 5200, "author": "Я, 9:02", "text": "Добрый день! А когда будет премия за прошлый квартал? 🙂", "typing": true, "side": "right" },
+    { "type": "ChatBubble", "fromMs": 5200, "toMs": 8600, "author": "Босс, 9:04", "text": "Зайди-ка ко мне в кабинет.", "typing": true, "side": "left" },
+    { "type": "ReactionPop", "fromMs": 8600, "toMs": 11000, "word": "ЧТО?!", "emoji": "😳", "sub": "это конец", "tone": "accent", "rotate": -6 },
+    { "type": "StatChips", "fromMs": 11000, "toMs": 14200, "title": "пока шёл 12 метров", "chips": [ { "label": "3 ПОТА" }, { "label": "0 ПЛАНОВ", "accent": true }, { "label": "1 ЖИЗНЬ" } ] },
+    { "type": "VoiceBubble", "fromMs": 14200, "toMs": 18000, "sender": "Босс", "quote": "Слушай… мы хотели тебя ПОВЫСИТЬ, но ты так и не спросил.", "durationLabel": "0:06", "side": "left", "silhouette": true, "highlightWords": ["ПОВЫСИТЬ"] },
+    { "type": "ReactionPop", "fromMs": 18000, "toMs": 20200, "word": "ОРУ", "emoji": "💀", "tone": "highlight", "rotate": 7 },
+    { "type": "PunchWord", "fromMs": 20200, "toMs": 23000, "word": "СПРОСИЛ", "sub": "мораль: спрашивайте", "filled": true, "rotate": -4 }
+  ]
+}

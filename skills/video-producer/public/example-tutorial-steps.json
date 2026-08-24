@@ -1,0 +1,14 @@
+{
+  "theme": "tutorial-steps",
+  "topic": "Как настроить автоответы в Telegram-боте за 3 шага",
+  "chapters": ["Подготовка", "Шаг 1", "Шаг 2", "Шаг 3", "Готово"],
+  "scenes": [
+    { "type": "SectionEyebrow", "fromMs": 0, "toMs": 2500, "kicker": "ТУТОРИАЛ", "text": "Автоответы в Telegram-боте за 3 шага", "meta": "0/3", "align": "left" },
+    { "type": "Checklist", "fromMs": 2500, "toMs": 6000, "title": "ЧТО ПОНАДОБИТСЯ", "items": [ { "text": "Бот из @BotFather" }, { "text": "5 минут" }, { "text": "Список частых вопросов" } ] },
+    { "type": "StepCard", "fromMs": 6000, "toMs": 9500, "num": 1, "verb": "Соберите вопросы", "detail": "Выпишите 5 вопросов, которые задают чаще всего", "progress": "1/3" },
+    { "type": "StepCard", "fromMs": 9500, "toMs": 13000, "num": 2, "verb": "Задайте ответы", "detail": "На каждый вопрос — один короткий ответ. Без воды.", "progress": "2/3" },
+    { "type": "StepCard", "fromMs": 13000, "toMs": 16500, "num": 3, "verb": "Включите триггеры", "detail": "Свяжите ключевые слова с ответами и сохраните", "progress": "3/3" },
+    { "type": "Checklist", "fromMs": 16500, "toMs": 20000, "title": "ГОТОВО", "done": true, "items": [ { "text": "Вопросы собраны", "ok": true }, { "text": "Ответы заданы", "ok": true }, { "text": "Триггеры включены", "ok": true } ] },
+    { "type": "Stamp", "fromMs": 20000, "toMs": 23000, "text": "РАБОТАЕТ", "tone": "ok" }
+  ]
+}

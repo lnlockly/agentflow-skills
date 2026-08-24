@@ -1,0 +1,12 @@
+{
+  "theme": "citata",
+  "topic": "ПОЧЕМУ ТЫ ВСЁ ЕЩЁ ЖДЁШЬ ПОДХОДЯЩЕГО МОМЕНТА",
+  "chapters": ["ПАУЗА", "ИСТИНА", "ДЕЙСТВИЕ"],
+  "scenes": [
+    { "type": "SectionEyebrow", "fromMs": 0, "toMs": 2000, "kicker": "МЫСЛЬ", "meta": "на сегодня", "align": "center" },
+    { "type": "QuoteReveal", "fromMs": 2000, "toMs": 8200, "text": "Идеального момента не существует.\nЕсть только момент — и что ты с ним сделаешь.", "author": "дневник, 3 года назад", "mode": "word", "emphasis": ["не существует", "сделаешь"], "rule": true },
+    { "type": "SectionEyebrow", "fromMs": 8200, "toMs": 9800, "kicker": "РАЗВОРОТ", "align": "center" },
+    { "type": "QuoteReveal", "fromMs": 9800, "toMs": 15800, "text": "Ты не устал.\nТы просто слишком долго не начинал.", "author": "себе, честно", "mode": "line", "emphasis": ["не начинал"], "rule": true },
+    { "type": "PunchWord", "fromMs": 15800, "toMs": 19000, "word": "НАЧНИ", "sub": "сегодня. с малого.", "filled": true }
+  ]
+}

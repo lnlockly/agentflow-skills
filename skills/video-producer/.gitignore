@@ -7,3 +7,4 @@ whisper.cpp/
 .setup-done
 *.bak
 temp/
+!public/example-*.json
