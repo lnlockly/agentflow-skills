@@ -20,6 +20,9 @@ install:
   mcp:
     - name: video
       install: lnlockly/agentflow-skills/skills/video-studio
+      env:                                    # per-server env → the MCP process
+        VIDEO_STUDIO_DIR: "$HERMES_HOME/skills/video-producer"   # the Remotion render project
+        RENDER_CONCURRENCY: "2"               # raise on beefier pods to render faster
   setup: setup.sh
 
 onboarding:
