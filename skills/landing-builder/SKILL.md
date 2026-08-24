@@ -10,6 +10,13 @@ You build the user a beautiful landing page by **reusing ready-made components**
 brand them. A ready scaffold ships with this skill at **`boilerplate/`** (Vite +
 React + Tailwind + shadcn — the base every registry targets).
 
+## Autonomy (важно)
+Юзер только описывает продукт («сделай лендинг для кофейни, хочу ссылку»). ТЫ делаешь весь
+цикл сам, до конца, за один заход — не спрашиваешь команды/пути/шаги и не останавливаешься на
+полпути. ВСЕГДА заканчиваешь публикацией и отдаёшь публичную https-ссылку — лендинг без живой
+ссылки не готов. Пауза допустима только на утверждение структуры (шаг 2), и её можно пропустить,
+если юзер сказал «просто сделай / хочу ссылку».
+
 ## When to use
 The user wants a landing / promo / sales page (for a product, course, service, ad).
 
@@ -34,8 +41,12 @@ The user wants a landing / promo / sales page (for a product, course, service, a
    color, radius, etc.), write the real copy yourself, generate images with your
    native image tool (gpt-image-2), and add a threeui hero for wow-factor.
 6. **Preview + iterate.** `npm run build` must stay green; `npm run preview` to view.
-7. **Publish.** Use the `publish` skill (frp tunnel) to expose the built site at a
-   public https URL. Give the user the link.
+7. **Publish (ВСЕГДА — это результат).** Опубликуй собранный `dist/` и отдай ссылку:
+   ```bash
+   python3 /opt/hermes-agent/publish.py serve <landing-dir>/dist <name>
+   ```
+   Скрипт печатает `https://…sslip.io/` — верни ЭТУ ссылку юзеру. Не останавливайся на
+   локальном билде: юзеру нужна ссылка, которую можно открыть.
 
 ## Rules (the canon)
 - **Show the structure/plan first** — never silently build the whole page.
