@@ -33,7 +33,8 @@ cd "$SKILL_DIR/mcp"
 }
 mkdir -p /app/data/bots
 if command -v hermes >/dev/null 2>&1 && ! hermes mcp list 2>/dev/null | grep -qi "bot-admin"; then
-  if hermes mcp add bot-admin --command node --args "$SKILL_DIR/mcp/server.mjs" --env "BOTS_ROOT=/app/data/bots" >/dev/null 2>&1; then
+  # `hermes mcp add` is interactive ("Enable all N tools? [Y/n]") — `yes` auto-accepts.
+  if yes | hermes mcp add bot-admin --command node --args "$SKILL_DIR/mcp/server.mjs" --env "BOTS_ROOT=/app/data/bots" >/dev/null 2>&1; then
     echo "[setup] bot-admin MCP registered (tools: list_bots, bot_stats, bot_referrals, bot_broadcast)"
   else
     echo "[setup] bot-admin MCP auto-register skipped — add later: hermes mcp add bot-admin --command node --args $SKILL_DIR/mcp/server.mjs --env BOTS_ROOT=/app/data/bots"
