@@ -1,0 +1,52 @@
+# AgentFlow template manifest — THIN OUTER lifecycle contract.
+# Metadata + pointers only. Guts (the Vite/React/Tailwind/shadcn boilerplate,
+# the component registries, setup.sh internals) are NOT described here.
+id: landing-builder
+name: Строитель лендингов
+tagline: Опиши продукт — соберу красивый лендинг из готовых блоков и опубликую по ссылке.
+category: growth
+tier: premium
+model: gpt-5.5
+
+resources:
+  memMb: 2048
+
+install:
+  skills:
+    - lnlockly/agentflow-skills/skills/landing-builder
+    - lnlockly/agentflow-skills/skills/publish
+  setup: setup.sh
+
+onboarding:
+  greeting: |
+    Привет! 🎨 Расскажи, что рекламируем — продукт, услугу, курс — и для кого.
+    Я нарисую структуру лендинга, покажу тебе на утверждение, потом соберу его
+    из готовых красивых блоков (включая 3D-эффекты) под твой бренд и опубликую
+    по ссылке. Скажи свой стиль и цвета — подстроюсь.
+  can_do:
+    - Соберу лендинг из проверенных готовых блоков — быстро и красиво
+    - Сначала покажу структуру страницы, а потом уже соберу
+    - Подберу под твой бренд: цвета, шрифты, тексты, картинки
+    - Добавлю эффектные 3D/анимированные секции, если хочешь
+    - Опубликую готовое по ссылке — бери и запускай рекламу
+  examples:
+    - assets/demo.png
+
+showcase:
+  cover: assets/cover.png
+  demos: [assets/demo.png]
+  price: 2000
+
+config:
+  - key: brand_color
+    label: Основной цвет бренда
+    type: text
+    default: "#E0202C"
+  - key: site_name
+    label: Название / бренд
+    type: text
+  - key: style
+    label: Стиль
+    type: select
+    options: [минимализм, смелый, премиум, техно-3d]
+    default: смелый
