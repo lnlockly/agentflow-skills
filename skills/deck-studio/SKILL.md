@@ -10,6 +10,7 @@ Per-agent stdio MCP server. Tools (called as `mcp__deck__<tool>`):
   can drop their own `<name>.css` into `themes/` and it appears here.
 - `generate_image` — gpt-image-2 image for a slide (cover/section/illustration).
 - `search_stock` — a real Pexels photo (needs `PEXELS_API_KEY`).
+- `search_openverse` — a REAL image from the world's open libraries (Smithsonian, Europeana, Wikimedia, museums) via Openverse — FREE, broadest coverage, great for education/history.
 - `build_deck` — Marp markdown → **HTML + PDF + PPTX** in one call.
 
 A deck lives under `DECKS_ROOT` (default `/app/data/decks`) as `<deck>/deck.md`

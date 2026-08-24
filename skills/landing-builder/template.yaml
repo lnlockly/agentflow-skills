@@ -15,6 +15,13 @@ install:
   skills:
     - lnlockly/agentflow-skills/skills/landing-builder
     - lnlockly/agentflow-skills/skills/publish
+    - lnlockly/agentflow-skills/skills/deck-studio
+    - lnlockly/agentflow-skills/skills/deck-builder
+  mcp:
+    - name: deck
+      install: lnlockly/agentflow-skills/skills/deck-studio
+      env:
+        DECKS_ROOT: "/app/data/decks"
   setup: setup.sh
 
 onboarding:
@@ -29,6 +36,7 @@ onboarding:
     - Подберу под твой бренд: цвета, шрифты, тексты, картинки
     - Добавлю эффектные 3D/анимированные секции, если хочешь
     - Опубликую готовое по ссылке — бери и запускай рекламу
+    - А ещё соберу мощную презентацию (инвесторам/учителям) с картинками из мировых библиотек — в HTML, PDF и PPTX
   examples:
     - assets/demo.png
 

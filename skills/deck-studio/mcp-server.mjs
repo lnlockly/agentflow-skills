@@ -145,6 +145,34 @@ async function tool_search_image({ query, deckDir, name }) {
   };
 }
 
+// ── search_openverse (the WORLD'S open libraries, aggregated) ────────────────
+// Broader than Wikimedia Commons: Openverse aggregates 800M+ openly-licensed
+// works (Smithsonian, Europeana, Wikimedia, Flickr, museums) in one API — FREE,
+// no key, with ready attribution. Great for education/history/culture topics.
+async function tool_search_openverse({ query, deckDir, name }) {
+  if (!query) throw new Error("query is required");
+  const dir = deckDirOf(deckDir);
+  const api = new URL("https://api.openverse.org/v1/images/");
+  api.searchParams.set("q", query);
+  api.searchParams.set("page_size", "12");
+  api.searchParams.set("license_type", "all-cc,commercial");
+  api.searchParams.set("mature", "false");
+  const res = await fetch(api, { headers: { "User-Agent": "AgentFlow-DeckBuilder/1.0 (agentflow.website)" } });
+  if (!res.ok) throw new Error(`Openverse ${res.status}`);
+  const results = (await res.json())?.results || [];
+  const cand = results.filter((x) => x.url && /\.(jpe?g|png)(\?|$)/i.test(x.url));
+  const pick = (cand.length ? cand : results)[0];
+  if (!pick || !pick.url) throw new Error(`no Openverse image for "${query}"`);
+  const id = name || `ov-${createHash("sha1").update(query).digest("hex").slice(0, 10)}`;
+  const outPath = join(dir, "assets", `${id}.jpg`);
+  writeFileSync(outPath, Buffer.from(await (await fetch(pick.url, { headers: { "User-Agent": "AgentFlow-DeckBuilder/1.0" } })).arrayBuffer()));
+  return {
+    ok: true, path: outPath, rel: `assets/${id}.jpg`,
+    credit: pick.creator, license: `${pick.license} ${pick.license_version || ""}`.trim(),
+    attribution: pick.attribution, source: pick.source, sourceUrl: pick.foreign_landing_url,
+  };
+}
+
 // ── list_themes ─────────────────────────────────────────────────────────────
 function tool_list_themes() {
   const custom = existsSync(THEMES_DIR)
@@ -202,6 +230,8 @@ const TOOLS = [
     inputSchema: { type: "object", properties: { query: { type: "string" }, deckDir: { type: "string" }, name: { type: "string" } }, required: ["query", "deckDir"], additionalProperties: false } },
   { name: "search_stock", description: "Find a modern stock photo on Pexels (business/lifestyle/nature). For real-world/historical, prefer search_image. Returns {path, rel, credit}. Requires PEXELS_API_KEY.",
     inputSchema: { type: "object", properties: { query: { type: "string" }, deckDir: { type: "string" }, name: { type: "string" }, orientation: { type: "string" } }, required: ["query", "deckDir"], additionalProperties: false } },
+  { name: "search_openverse", description: "Find a REAL open-licensed image across the WORLD'S libraries (Smithsonian, Europeana, Wikimedia, Flickr, museums) via Openverse — FREE, no key, broadest coverage. Great for education/history/culture. Returns {path, rel, credit, license, attribution, sourceUrl}.",
+    inputSchema: { type: "object", properties: { query: { type: "string" }, deckDir: { type: "string" }, name: { type: "string" } }, required: ["query", "deckDir"], additionalProperties: false } },
   { name: "build_deck", description: "Build the presentation from Marp markdown into HTML + PDF + PPTX at once. Pass `markdown` (or have deck.md in deckDir), a `theme` (see list_themes) and `name`. Returns the 3 output paths.",
     inputSchema: { type: "object", properties: { deckDir: { type: "string" }, markdown: { type: "string" }, theme: { type: "string" }, name: { type: "string" } }, required: ["deckDir"], additionalProperties: false } },
 ];
@@ -217,6 +247,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       case "generate_image": return ok(await tool_generate_image(a));
       case "search_image": return ok(await tool_search_image(a));
       case "search_stock": return ok(await tool_search_stock(a));
+      case "search_openverse": return ok(await tool_search_openverse(a));
       case "build_deck": return ok(tool_build_deck(a));
       default: return { content: [{ type: "text", text: `unknown tool: ${name}` }], isError: true };
     }
