@@ -1,0 +1,10 @@
+{
+  "name": "bot-scout",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "MTProto userbot scout — walks a target bot and maps its flow for cloning.",
+  "private": true,
+  "dependencies": {
+    "telegram": "^2.26.0"
+  }
+}

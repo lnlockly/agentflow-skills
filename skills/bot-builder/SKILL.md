@@ -56,11 +56,18 @@ send a broadcast, set up referrals, clone another bot).
   `segments.withTag("vip")`, `segments.fromSource("instagram")`, or all.
 
 ## Clone an existing bot (scout — opt-in)
-If the user activates their userbot account, they can send a link to a target bot
-and you act as a scout: walk it (send /start, click every button, record the
-messages/keyboards/media), map its flow, then WRITE an equivalent bot with this
-boilerplate. You reconstruct the funnel + content; closed backend logic isn't
-visible from outside, but for most funnels the flow IS the product.
+If the user activates their userbot account, you can clone a target bot:
+```bash
+cd scout && npm install
+TG_API_ID=… TG_API_HASH=… TG_SESSION=… node scout.mjs @targetbot > flow-map.json
+```
+`scout.mjs` walks the bot with the user's MTProto session (sends /start, clicks
+every callback button breadth-first) and outputs a **flow map** (nodes = screens
+with text+buttons, edges = button→next). You then READ `flow-map.json` and WRITE
+an equivalent grammY funnel with this boilerplate. You reconstruct the flow +
+content — that IS the product for most funnels; closed backend logic / content
+behind pay/auth walls isn't visible from outside. Userbot creds are opt-in, come
+from the user, and live only in env (never hardcode).
 
 ## Remember the user
 Save the user's bots, brand, default funnel style, audience segments, and any
