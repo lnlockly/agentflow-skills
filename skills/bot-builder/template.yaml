@@ -1,0 +1,50 @@
+# AgentFlow template manifest — THIN OUTER lifecycle contract.
+# Same shape as video-producer, radically different guts (grammY+Prisma
+# boilerplate + scout MTProto tool, no MCP server, 2Gi). The manifest never
+# describes those internals. Validates against TemplateManifest.
+id: bot-builder
+name: Строитель ботов
+tagline: Расскажи, какой бот нужен — соберу и запущу, тебе останется только пользоваться.
+category: bots
+tier: premium
+model: gpt-5.5
+
+resources:
+  memMb: 2048
+
+install:
+  skills:
+    - lnlockly/agentflow-skills/skills/funnel-builder
+    - lnlockly/agentflow-skills/skills/bot-builder
+    - lnlockly/agentflow-skills/skills/publish
+  mcp: []
+  setup: setup.sh
+
+onboarding:
+  greeting: |
+    Привет! 🤖 Я соберу тебе Telegram-бота под твою задачу. Просто расскажи,
+    что он должен делать — например, принимать заявки, продавать, вести
+    рассылку или подсказывать клиентам. Я всё сделаю и запущу, а тебе
+    останется только пользоваться.
+  can_do:
+    - Соберу бота под то, что тебе нужно
+    - Приведёт клиентов и посчитает заявки
+    - Разошлёт сообщения твоим подписчикам
+    - Могу сделать похожего на бота, который тебе нравится
+  examples:
+    - "собери бота, который принимает заявки и присылает их мне"
+    - assets/funnel-canvas.png
+
+config:
+  - key: goal
+    label: Что должен делать бот
+    type: text
+  - key: like_bot
+    label: Повторить бота, который нравится
+    type: bool
+    default: false
+
+showcase:
+  cover: assets/cover.jpg
+  demos: [assets/funnel-canvas.png]
+  price: 900
