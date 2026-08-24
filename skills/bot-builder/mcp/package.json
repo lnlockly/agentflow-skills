@@ -1,0 +1,10 @@
+{
+  "name": "bot-admin-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Thin stdio MCP giving the agent first-class tools to view + manage the bots it built.",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  }
+}

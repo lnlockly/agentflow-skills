@@ -39,10 +39,12 @@ send a broadcast, set up referrals, clone another bot).
    Reuse the feature modules: `features/referral`, `tracking`, `broadcast`, `analytics`.
 5. **Run it in your pod** (survives restarts): `pm2 start "npm start" --name <name>`
    `&& pm2 save`. Tell the user the bot is live.
-6. **Manage by chat.** You are the admin — no web panel. Use the CLI:
-   `tsx src/manage.ts stats` · `tsx src/manage.ts referrals` ·
-   `tsx src/manage.ts broadcast "текст" [tag]`. For anything custom, query Prisma
-   (`src/db.ts`) or edit the code. Report results in chat.
+6. **Manage by chat.** You are the admin — no web panel. Prefer the **bot-admin
+   MCP tools** (registered by setup.sh): `list_bots`, `bot_stats(dir)`,
+   `bot_referrals(dir)`, `bot_broadcast(dir, text, segment?)` — first-class,
+   typed, work across every bot you built (scaffold bots into `/app/data/bots/`).
+   Fallback / anything custom: run the bot's `tsx src/manage.ts stats|referrals|
+   broadcast` or query Prisma (`src/db.ts`) directly. Report results in chat.
 
 ## Rules (the canon)
 - **Propose the plan (visual funnel) first** — never silently build.

@@ -1,34 +1,43 @@
 #!/usr/bin/env bash
 # setup.sh — ONE-TIME env prep for the bot-builder skill, run inside the agent
-# pod. Idempotent + latched: safe to call before every job; the heavy work
-# (npm install + prisma client generation) runs only once. The agent pod
-# overlay-persists /usr /opt /root on the DATA PVC, so node_modules and the
-# generated Prisma client SURVIVE pod restarts — paid once per agent.
+# pod. Idempotent + latched: safe to call before every job. The agent pod
+# overlay-persists /usr /opt /root on the DATA PVC, so node_modules + the Prisma
+# client + the MCP registration SURVIVE pod restarts — paid once per agent.
 #
-# What it prewarms is the SHARED boilerplate/ (grammY + Prisma + feature
-# modules + example funnel). Each bot the agent builds is a COPY of that folder
-# with its own .env + DB, so its per-bot `npm install && npm run db:push`
-# resolves instantly from this warm cache.
-#
-# NOT prewarmed here: scout/ (MTProto clone tool). Its GramJS dep + a userbot
-# session are opt-in and only needed when the user asks to clone a bot, so the
-# SKILL installs it on demand (`cd scout && npm install`).
+# Two things get warmed:
+#   1) the SHARED boilerplate/ (grammY + Prisma) — each bot the agent builds is a
+#      COPY of it, so per-bot `npm install && npm run db:push` resolves instantly.
+#   2) the bot-admin MCP (view/manage the built bots) — deps + registration.
 set -euo pipefail
-cd "$(dirname "$0")/boilerplate"
+SKILL_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-LATCH=".setup-done"
-if [ -f "$LATCH" ] && [ -d node_modules/grammy ] && [ -d node_modules/.prisma/client ]; then
-  echo "[setup] already done"
-  exit 0
+# ── 1) boilerplate prewarm ──────────────────────────────────────────────────
+cd "$SKILL_DIR/boilerplate"
+if [ -f ".setup-done" ] && [ -d node_modules/grammy ] && [ -d node_modules/.prisma/client ]; then
+  echo "[setup] boilerplate already warm"
+else
+  echo "[setup] npm install (grammy + @grammyjs/* + @prisma/client + zod + tooling)…"
+  npm install --no-audit --no-fund --loglevel=error
+  echo "[setup] prisma generate…"
+  npx prisma generate >/dev/null
+  touch ".setup-done"
+  echo "[setup] boilerplate warm."
 fi
 
-echo "[setup] npm install (grammy + @grammyjs/* + @prisma/client + zod + tooling)…"
-npm install --no-audit --no-fund --loglevel=error
+# ── 2) bot-admin MCP (first-class tools to view users/referrals/conversions +
+#       run broadcasts across the bots the agent built) ───────────────────────
+cd "$SKILL_DIR/mcp"
+[ -d node_modules/@modelcontextprotocol ] || {
+  echo "[setup] npm install (bot-admin MCP)…"
+  npm install --no-audit --no-fund --loglevel=error
+}
+mkdir -p /app/data/bots
+if command -v hermes >/dev/null 2>&1 && ! hermes mcp list 2>/dev/null | grep -qi "bot-admin"; then
+  if hermes mcp add bot-admin --command node --args "$SKILL_DIR/mcp/server.mjs" --env "BOTS_ROOT=/app/data/bots" >/dev/null 2>&1; then
+    echo "[setup] bot-admin MCP registered (tools: list_bots, bot_stats, bot_referrals, bot_broadcast)"
+  else
+    echo "[setup] bot-admin MCP auto-register skipped — add later: hermes mcp add bot-admin --command node --args $SKILL_DIR/mcp/server.mjs --env BOTS_ROOT=/app/data/bots"
+  fi
+fi
 
-echo "[setup] prisma generate (typed client from schema.prisma)…"
-# generate reads only the schema — no DATABASE_URL/secret needed. The URL is set
-# per-bot in each copy's .env before `npm run db:push`.
-npx prisma generate >/dev/null
-
-touch "$LATCH"
-echo "[setup] done — boilerplate warm. Scaffold a bot: cp -r boilerplate <dst> && cd <dst> && npm run db:push"
+echo "[setup] done — scaffold a bot into /app/data/bots/<name> from boilerplate."
