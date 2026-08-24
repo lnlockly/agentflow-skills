@@ -1,0 +1,56 @@
+# AgentFlow template manifest — THIN OUTER lifecycle contract.
+# Metadata + POINTERS only. Never describes the guts (MCP server, Remotion
+# render, setup.sh internals). Validates against TemplateManifest.
+id: video-producer
+name: Видео-продюсер
+tagline: Пришли видео — верну короткие ролики с красивыми субтитрами для Reels и TikTok.
+category: video
+tier: premium
+model: gpt-5.5
+
+resources:
+  memMb: 8192
+  cpus: 4
+
+install:
+  skills:
+    - lnlockly/agentflow-skills/skills/video-studio
+    - lnlockly/agentflow-skills/skills/video-producer
+    - lnlockly/agentflow-skills/skills/publish
+  mcp:
+    - name: video
+      install: lnlockly/agentflow-skills/skills/video-studio
+  setup: setup.sh
+
+onboarding:
+  greeting: |
+    Привет! 🎬 Пришли мне видео (можно длинное или ссылку) — и я верну
+    короткие вертикальные ролики для Reels, TikTok и Shorts: с красивыми
+    субтитрами и оформлением. Скажи, какой стиль тебе больше нравится —
+    и я подстроюсь под тебя.
+  can_do:
+    - Из одного длинного видео сделаю несколько коротких
+    - Красивые субтитры, которые загораются по словам
+    - Поставлю имя твоего канала на каждый ролик
+    - Пришлю готовое прямо сюда — бери и выкладывай
+  examples:
+    - assets/demo-reel.mp4
+
+config:
+  - key: theme
+    label: Стиль ролика
+    type: select
+    options: [разбор, досье, красный]
+    default: разбор
+  - key: handle
+    label: Имя канала
+    type: text
+  - key: max_clips
+    label: Максимум клипов
+    type: number
+    default: 5
+
+showcase:
+  cover: assets/cover.jpg
+  demos: [assets/demo-reel.mp4]
+  price: 1500
