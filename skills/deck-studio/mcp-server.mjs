@@ -44,6 +44,28 @@ const deckDirOf = (d) => {
   return p;
 };
 
+// Marp needs a Chromium for PDF/PPTX. Auto-detect it (env → Playwright cache) so
+// the tool works without a hand-set CHROME_PATH. setup.sh installs one if absent.
+function findChrome() {
+  const roots = [
+    process.env.PLAYWRIGHT_BROWSERS_PATH,
+    "/root/.cache/ms-playwright",
+    process.env.HOME ? join(process.env.HOME, ".cache/ms-playwright") : null,
+  ].filter(Boolean);
+  for (const root of roots) {
+    let dirs = [];
+    try { dirs = readdirSync(root); } catch { continue; }
+    for (const d of dirs) {
+      if (!/^chromium/.test(d)) continue;
+      for (const sub of ["chrome-linux64/chrome", "chrome-linux/chrome"]) {
+        const p = join(root, d, sub);
+        if (existsSync(p)) return p;
+      }
+    }
+  }
+  return undefined;
+}
+
 // ── generate_image (gpt-image-2) ────────────────────────────────────────────
 async function tool_generate_image({ prompt, deckDir, name, size = "1536x1024", model = "gpt-image-2" }) {
   const { base, key } = llmGateway();
@@ -148,7 +170,7 @@ function tool_build_deck({ deckDir, markdown, theme = "aurora", name = "deck" })
   if (!existsSync(mdPath)) throw new Error(`no deck.md in ${dir} (pass markdown or create deck.md)`);
 
   const env = { ...process.env };
-  const chrome = process.env.BROWSER_EXECUTABLE || process.env.CHROME_PATH;
+  const chrome = process.env.CHROME_PATH || process.env.BROWSER_EXECUTABLE || findChrome();
   if (chrome) env.CHROME_PATH = chrome;
 
   const outs = {};

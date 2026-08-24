@@ -13,6 +13,16 @@ fi
 
 echo "[setup] npm install (@modelcontextprotocol/sdk + @marp-team/marp-cli)…"
 npm install --no-audit --no-fund --loglevel=error
+
+# Marp needs a full Chromium for PDF/PPTX export. The base image's Playwright
+# browser is often incomplete (support files, no `chrome` binary), so ensure one.
+if ! ls /root/.cache/ms-playwright/chromium-*/chrome-linux*/chrome >/dev/null 2>&1; then
+  echo "[setup] installing Chromium for Marp PDF/PPTX (~115MB, once)…"
+  npx --yes playwright@latest install chromium >/dev/null 2>&1 \
+    && echo "[setup] chromium ready" \
+    || echo "[setup] chromium install failed — HTML export still works, PDF/PPTX may not"
+fi
+
 mkdir -p "${DECKS_ROOT:-/app/data/decks}"
 touch ".setup-done"
 echo "[setup] done — deck-studio ready (themes: $(ls themes/*.css 2>/dev/null | wc -l) bundled)."
