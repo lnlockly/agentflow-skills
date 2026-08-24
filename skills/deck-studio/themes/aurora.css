@@ -1,0 +1,103 @@
+/* @theme aurora
+ * A premium editorial deck theme for Marp. Cyrillic-ready.
+ * Layouts via per-slide class directives:  <!-- _class: cover -->
+ *   (default)   light editorial slide (title + body/bullets)
+ *   invert      dark slide (same layouts, inverted palette)
+ *   cover       full-bleed background image + title block (add invert for dark scrim)
+ *   section     big section divider (accent, centered)
+ *   quote       large pull-quote
+ *   stat        one huge number + label
+ *   twocol      two columns (separate with a line: `## left` ... `---cols---` ... )
+ * Full-bleed image on any slide:  ![bg](url)   |  right/left half: ![bg right](url)
+ */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap');
+
+:root {
+  --paper:#f6f3ec; --ink:#181410; --sub:#5c554c; --line:#ddd6c9;
+  --accent:#c1121f; --accent2:#7a5c00; --card:#ffffff;
+  --ink-dark:#0d0c0b; --paper-dark:#f3efe6; --sub-dark:#b7 afa0;
+  --display:'Playfair Display',Georgia,serif;
+  --body:'Inter','Segoe UI',system-ui,sans-serif;
+  --label:'Oswald','Arial Narrow',sans-serif;
+}
+
+section{
+  width:1280px; height:720px; padding:66px 78px;
+  background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:26px; line-height:1.5; letter-spacing:.1px;
+  display:flex; flex-direction:column; justify-content:flex-start;
+  position:relative; overflow:hidden;
+}
+/* running accent hairline top */
+section::before{ content:''; position:absolute; top:0; left:0; right:0; height:8px; background:var(--accent); }
+
+h1{ font-family:var(--display); font-weight:800; font-size:64px; line-height:1.06; margin:0 0 12px; letter-spacing:-.5px; }
+h2{ font-family:var(--display); font-weight:700; font-size:44px; line-height:1.12; margin:0 0 16px; }
+h3{ font-family:var(--label); font-weight:600; text-transform:uppercase; letter-spacing:2px; font-size:20px; color:var(--accent); margin:0 0 10px; }
+p{ margin:0 0 14px; color:var(--ink); }
+strong{ color:var(--accent); font-weight:700; }
+em{ font-style:italic; color:var(--sub); }
+a{ color:var(--accent); text-decoration:none; }
+
+ul,ol{ margin:6px 0; padding-left:0; list-style:none; }
+li{ position:relative; padding-left:36px; margin:0 0 16px; }
+ul li::before{ content:''; position:absolute; left:6px; top:14px; width:12px; height:12px; background:var(--accent); border-radius:3px; transform:rotate(45deg); }
+ol{ counter-reset:o; }
+ol li{ counter-increment:o; }
+ol li::before{ content:counter(o); position:absolute; left:0; top:0; width:26px; height:26px; background:var(--ink); color:var(--paper);
+  border-radius:50%; font-family:var(--label); font-size:15px; display:flex; align-items:center; justify-content:center; }
+
+blockquote{ margin:0; border:0; }
+img{ border-radius:12px; }
+table{ font-size:22px; border-collapse:collapse; width:100%; }
+th{ font-family:var(--label); text-transform:uppercase; letter-spacing:1px; font-size:16px; color:var(--sub); text-align:left; border-bottom:2px solid var(--ink); padding:10px 12px; }
+td{ border-bottom:1px solid var(--line); padding:10px 12px; }
+
+/* footer + pagination */
+section::after{ content:attr(data-marpit-pagination); position:absolute; bottom:26px; right:34px;
+  font-family:var(--label); font-size:16px; color:var(--sub); letter-spacing:1px; }
+footer{ position:absolute; bottom:24px; left:78px; font-family:var(--label); text-transform:uppercase; letter-spacing:2px; font-size:15px; color:var(--sub); }
+
+/* ── DARK ─────────────────────────────────────────────── */
+section.invert{ background:var(--ink-dark); color:var(--paper-dark); }
+section.invert h1, section.invert h2{ color:#fff; }
+section.invert p{ color:#e7e2d8; }
+section.invert em{ color:#b7afa0; }
+section.invert h3{ color:#ff5a45; }
+section.invert strong{ color:#ff5a45; }
+section.invert td{ border-color:#33302b; }
+section.invert th{ color:#b7afa0; border-color:#e7e2d8; }
+
+/* ── COVER (full-bleed bg image, big title bottom-left) ── */
+section.cover{ justify-content:flex-end; color:#fff; padding:80px; }
+section.cover::before{ height:0; }
+section.cover h1{ font-size:80px; color:#fff; text-shadow:0 2px 30px rgba(0,0,0,.5); max-width:16ch; }
+section.cover h3{ color:#fff; opacity:.95; }
+section.cover p{ color:#f2efe8; font-size:24px; max-width:44ch; }
+/* readability scrim over the bg image */
+section.cover::after{ content:''; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.05) 40%, rgba(10,8,6,.82) 100%); }
+
+/* ── SECTION DIVIDER ──────────────────────────────────── */
+section.section{ background:var(--accent); color:#fff; justify-content:center; align-items:flex-start; }
+section.section::before{ height:0; }
+section.section h1{ font-size:88px; color:#fff; max-width:18ch; }
+section.section h3{ color:rgba(255,255,255,.85); }
+section.section p{ color:rgba(255,255,255,.92); font-size:26px; }
+
+/* ── QUOTE ────────────────────────────────────────────── */
+section.quote{ justify-content:center; }
+section.quote h1{ font-family:var(--display); font-style:italic; font-weight:600; font-size:52px; line-height:1.22; max-width:26ch; }
+section.quote h1::before{ content:'“'; color:var(--accent); font-size:110px; line-height:0; position:absolute; margin-left:-.6em; margin-top:.35em; }
+section.quote footer, section.quote p{ color:var(--sub); font-family:var(--label); text-transform:uppercase; letter-spacing:2px; font-size:18px; }
+
+/* ── STAT (one huge number) ───────────────────────────── */
+section.stat{ justify-content:center; }
+section.stat h1{ font-size:180px; line-height:.9; letter-spacing:-3px; }
+section.stat h2{ font-family:var(--label); text-transform:uppercase; letter-spacing:2px; font-size:26px; color:var(--sub); font-weight:600; }
+
+/* ── TWO COLUMNS ──────────────────────────────────────── */
+section.twocol{ display:block; }
+section.twocol .columns, section.twocol > ul, section.twocol{ }
+section.twocol > h1, section.twocol > h2, section.twocol > h3{ }
+section.twocol .cols{ display:grid; grid-template-columns:1fr 1fr; gap:48px; }

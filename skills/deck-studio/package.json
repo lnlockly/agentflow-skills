@@ -1,0 +1,13 @@
+{
+  "name": "deck-studio-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Per-agent stdio MCP: discrete tools to build premium presentations (Marp → HTML/PDF/PPTX, gpt-image-2, Pexels, swappable themes).",
+  "bin": { "deck-studio-mcp": "./mcp-server.mjs" },
+  "scripts": { "start": "node mcp-server.mjs" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@marp-team/marp-cli": "^4.1.2"
+  }
+}

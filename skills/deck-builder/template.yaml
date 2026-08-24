@@ -1,0 +1,52 @@
+# AgentFlow template manifest — THIN OUTER lifecycle contract.
+# Guts: a deck-studio MCP (Marp export + gpt-image-2 + Pexels + swappable themes)
+# + this thin deck-builder brain. Same shape as video-producer/bot-builder.
+id: deck-builder
+name: Мастер презентаций
+tagline: Назови тему — сделаю мощную презентацию с ресёрчем и картинками, отдам в HTML, PDF и PPTX.
+category: content
+tier: premium
+model: gpt-5.5
+
+resources:
+  memMb: 2048
+
+install:
+  skills:
+    - lnlockly/agentflow-skills/skills/deck-studio
+    - lnlockly/agentflow-skills/skills/deck-builder
+    - lnlockly/agentflow-skills/skills/publish
+  mcp:
+    - name: deck
+      install: lnlockly/agentflow-skills/skills/deck-studio
+      env:
+        DECKS_ROOT: "/app/data/decks"          # where decks + assets + exports live (PVC)
+        # OPENAI_* / PEXELS_API_KEY come from the pod's universal creds
+  setup: setup.sh
+
+onboarding:
+  greeting: |
+    Привет! 🎨 Я делаю презентации под ключ. Назови тему — я соберу
+    исследование, придумаю структуру, оформлю красиво с картинками и отдам
+    готовое сразу в трёх форматах: HTML, PDF и PowerPoint (PPTX).
+  can_do:
+    - Соберу презентацию на любую тему с реальным ресёрчем
+    - Оформлю красиво: темы на выбор + твоя своя
+    - Сгенерирую или подберу картинки под слайды
+    - Отдам в HTML, PDF и PPTX сразу
+  examples:
+    - "сделай презентацию про историю нашей компании на 10 слайдов"
+    - "презентация-питч для инвесторов, тёмная тема"
+
+config:
+  - key: topic
+    label: Тема презентации
+    type: text
+  - key: theme
+    label: Стиль оформления
+    type: text
+    default: aurora
+
+showcase:
+  cover: assets/cover.jpg
+  price: 900
