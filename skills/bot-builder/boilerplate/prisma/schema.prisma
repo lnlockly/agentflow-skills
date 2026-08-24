@@ -1,0 +1,90 @@
+// Prisma schema — the ORM boundary. Swap SQLite → Postgres by changing ONLY
+// `provider` here + the DATABASE_URL env. No query/code changes anywhere else.
+//   sqlite:      provider = "sqlite"    DATABASE_URL="file:./data/bot.db"
+//   postgres:    provider = "postgresql" DATABASE_URL="postgresql://user:pass@host:5432/db"
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+/// A bot user (subscriber). refCode is their own invite code.
+model User {
+  id           Int       @id @default(autoincrement())
+  tgId         BigInt    @unique
+  username     String?
+  firstName    String?
+  /// This user's personal referral code (shared via t.me/bot?start=ref_<refCode>).
+  refCode      String    @unique
+  /// Who invited this user (attribution).
+  referredById Int?
+  referredBy   User?     @relation("Referrals", fields: [referredById], references: [id])
+  referrals    User[]    @relation("Referrals")
+  /// Acquisition source captured from the first deep-link (utm/campaign).
+  source       String?
+  campaign     String?
+  /// Comma-separated segments/tags the agent can target for broadcasts.
+  tags         String    @default("")
+  /// Set true once the user blocks the bot (skip them in broadcasts).
+  blocked      Boolean   @default(false)
+  joinedAt     DateTime  @default(now())
+  lastSeen     DateTime  @default(now())
+
+  clicks       ClickEvent[]
+  conversions  Conversion[]
+  funnels      FunnelProgress[]
+
+  @@index([source])
+  @@index([blocked])
+}
+
+/// Every deep-link entry (marketing link tracking). source = the ?start= payload's utm.
+model ClickEvent {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  source    String
+  campaign  String?
+  createdAt DateTime @default(now())
+
+  @@index([source])
+  @@index([campaign])
+}
+
+/// A funnel conversion (lead / purchase / whatever the bot defines).
+model Conversion {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  type      String
+  value     Float    @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([type])
+}
+
+/// One broadcast run (mailing), for auditing + stats.
+model Broadcast {
+  id        Int      @id @default(autoincrement())
+  segment   String?
+  text      String
+  sent      Int      @default(0)
+  failed    Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+/// Where each user is in a named funnel (resume / analytics).
+model FunnelProgress {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  funnel    String
+  step      String
+  updatedAt DateTime @default(now())
+
+  @@unique([userId, funnel])
+}

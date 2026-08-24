@@ -1,168 +1,67 @@
 ---
 name: bot-builder
-description: "Scaffold a working Telegram bot with python-telegram-bot — command handlers, inline keyboards, message flows, and deploy notes. Self-contained; the Bot API token comes from BotFather, no third-party service."
-version: 1.0.0
-author: AgentFlow
-license: MIT
-platforms: [linux, macos]
-metadata:
-  hermes:
-    tags: [telegram, bot, python, python-telegram-bot, handlers, inline-keyboard, ptb, бот]
-    related_skills: [funnel-builder, publish]
+description: Create, run and fully manage Telegram bots for the user — funnel bots, referral/broadcast bots, or clones of an existing bot. Use whenever the user wants a bot built, changed, launched, or managed (stats, mailing, referral). You WRITE CODE and run it in your own pod; you are the admin (no web panel).
 ---
 
-# Bot Builder — Scaffold a Working Telegram Bot
+# Bot Builder — «Собери бота»
 
-You build a runnable Telegram bot using **python-telegram-bot** (PTB, v21+,
-async). Everything here uses code and your runtime only. The single external
-dependency is the Telegram Bot API itself, which is inherent to any Telegram bot
-and reached with a token the user obtains from **@BotFather** — no MCP, no
-third-party wrapper.
+You build the user a **real Telegram bot**, run it inside your own pod, and manage
+it by chat. You WRITE CODE — a generic boilerplate does the boring parts (users,
+referral, link-tracking, broadcast, analytics); you write the bot's own logic and
+funnels as code. Everything is editable and grows with the user.
 
----
+A ready boilerplate ships with this skill at **`boilerplate/`** (grammY + Prisma +
+feature modules + an example funnel). You scaffold each new bot by copying it.
 
-## Step 0 — Get the token (tell the user, once)
+## When to use
+The user wants to make a bot, change a bot, launch it, or manage one (see stats,
+send a broadcast, set up referrals, clone another bot).
 
-The user creates the bot in Telegram: message **@BotFather** → `/newbot` →
-choose a name and username → BotFather returns a token like
-`123456:ABC-DEF...`. Never hardcode it. Read it from the `BOT_TOKEN` environment
-variable.
+## The flow (be DYNAMIC — plan first, don't just build)
 
-## Step 1 — Project layout
+1. **Understand + PLAN.** Briefly ask what the bot is for (funnel / shop / community /
+   giveaway…), the goal, the vibe. Recall the user's past bots/brand from memory.
+2. **Show a VISUAL funnel first.** Draw the funnel as a diagram (a mermaid flowchart
+   or a simple numbered map: /start → приветствие → оффер → кнопки → оплата → апселл)
+   and show it to the user to approve/tweak BEFORE you write code. This is the
+   funnel-builder step — the diagram is the plan, the code is the truth.
+3. **Scaffold.** Copy `boilerplate/` to a new folder (e.g. `/app/data/bots/<name>`),
+   set `BOT_TOKEN` (+ `DATABASE_URL=file:./data/bot.db`) in `.env`,
+   `npm install && npm run db:push`.
+4. **Write the funnel as CODE.** Edit `src/funnels/<name>.ts` — a grammY
+   `conversations` function. Simple flow ≈ 20 lines; branches / API calls / payments /
+   dynamic content = just more code. Register it in `src/bot.ts`. NO JSON funnels.
+   Reuse the feature modules: `features/referral`, `tracking`, `broadcast`, `analytics`.
+5. **Run it in your pod** (survives restarts): `pm2 start "npm start" --name <name>`
+   `&& pm2 save`. Tell the user the bot is live.
+6. **Manage by chat.** You are the admin — no web panel. Use the CLI:
+   `tsx src/manage.ts stats` · `tsx src/manage.ts referrals` ·
+   `tsx src/manage.ts broadcast "текст" [tag]`. For anything custom, query Prisma
+   (`src/db.ts`) or edit the code. Report results in chat.
 
-```
-mybot/
-  bot.py            # entry point, wires handlers
-  handlers.py       # command + callback handlers
-  keyboards.py      # inline keyboard builders
-  flows.py          # message flow / screen definitions (maps to funnel.json)
-  requirements.txt  # python-telegram-bot>=21
-```
+## Rules (the canon)
+- **Propose the plan (visual funnel) first** — never silently build.
+- **Funnels are CODE**, not JSON. No DSL, no ceiling.
+- **Never hand-write SQL** — always the Prisma ORM. SQLite now; to move to Postgres,
+  change `provider` in `prisma/schema.prisma` + `DATABASE_URL` — nothing else.
+- **The agent is the admin** — manage by chat, not a web dashboard.
+- **Run bots in your pod** with pm2 + `pm2 save` so they persist across restarts.
 
-`requirements.txt`:
-```
-python-telegram-bot>=21,<22
-```
+## Referral / tracking / broadcast (already built in)
+- Referral: users share `t.me/<bot>?start=ref_<code>`; attribution is automatic.
+  `/ref` shows a user their link + invite count.
+- Link tracking: campaign links `t.me/<bot>?start=utm_<source>_<campaign>` are recorded;
+  `manage stats` shows sources/clicks.
+- Broadcast: `broadcast(bot, text, segment)` — `segments.notConverted("purchase")`,
+  `segments.withTag("vip")`, `segments.fromSource("instagram")`, or all.
 
-Install: `pip install -r requirements.txt`.
+## Clone an existing bot (scout — opt-in)
+If the user activates their userbot account, they can send a link to a target bot
+and you act as a scout: walk it (send /start, click every button, record the
+messages/keyboards/media), map its flow, then WRITE an equivalent bot with this
+boilerplate. You reconstruct the funnel + content; closed backend logic isn't
+visible from outside, but for most funnels the flow IS the product.
 
-## Step 2 — Command handlers
-
-```python
-# handlers.py
-from telegram import Update
-from telegram.ext import ContextTypes
-from keyboards import main_menu
-
-async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "Welcome! Pick an option:",
-        reply_markup=main_menu(),
-    )
-
-async def help_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Commands: /start /help")
-```
-
-Register a handler for every command you expose, and set the command list so
-Telegram shows the menu:
-
-```python
-await app.bot.set_my_commands([
-    ("start", "Begin"),
-    ("help", "How this bot works"),
-])
-```
-
-## Step 3 — Inline keyboards
-
-```python
-# keyboards.py
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
-def main_menu():
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("Start free", callback_data="cta")],
-        [InlineKeyboardButton("I have a question", callback_data="nurture")],
-    ])
-```
-
-`callback_data` is the routing key. Keep it short (<64 bytes) and stable.
-
-## Step 4 — Message flows (screens → callbacks)
-
-If a funnel was designed with the `funnel-builder` skill, `funnel.json` already
-lists screens and buttons. Turn each screen into a render function and route
-callbacks by the button's `to` id:
-
-```python
-# flows.py
-SCREENS = {
-    "cta":     {"text": "Start free — no card.", "buttons": [("Pick a plan","tariffs"),("Question","nurture")]},
-    "nurture": {"text": "Free 3-min lesson + FAQ.", "buttons": [("Back","cta")]},
-    "tariffs": {"text": "Pick a plan:", "buttons": [("Starter $19","checkout"),("Pro $49","checkout")]},
-    "checkout":{"text": "Great! Confirm your plan.", "buttons": []},
-}
-```
-
-```python
-# handlers.py
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from flows import SCREENS
-
-async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    await q.answer()
-    screen = SCREENS.get(q.data)
-    if not screen:
-        return
-    kb = [[InlineKeyboardButton(lbl, callback_data=to)] for (lbl, to) in screen["buttons"]]
-    await q.edit_message_text(screen["text"],
-                              reply_markup=InlineKeyboardMarkup(kb) if kb else None)
-```
-
-Editing the message (`edit_message_text`) makes the funnel feel like a single
-evolving screen instead of a growing chat log.
-
-## Step 5 — Wire it together
-
-```python
-# bot.py
-import os
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler
-from handlers import start, help_cmd, on_button
-
-def main():
-    token = os.environ["BOT_TOKEN"]
-    app = ApplicationBuilder().token(token).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help_cmd))
-    app.add_handler(CallbackQueryHandler(on_button))
-    app.run_polling()  # long-polling: no public URL needed
-
-if __name__ == "__main__":
-    main()
-```
-
-Run: `BOT_TOKEN=123:ABC python bot.py`.
-
-## Step 6 — Deploy notes
-
-- **Polling** (`run_polling`) needs no inbound port — simplest for a container
-  or a small VM. One process per bot token; never run two pollers on the same
-  token (they will fight for updates).
-- **Webhook** (`app.run_webhook(...)`) needs a public HTTPS URL. If the user
-  wants that, expose the port with the `publish` skill's frp tunnel and call
-  `bot.set_webhook(url)`.
-- Keep the token in the environment, not in code or git.
-- Persist state (which screen a user is on, purchases) in a small file or
-  SQLite if the flow needs memory across restarts; `ContextTypes` user_data is
-  in-memory only.
-- Handle errors with `app.add_error_handler(...)` so one bad update never kills
-  the bot.
-
-## Deliverables
-
-1. A runnable `mybot/` project (the files above, filled for the user's case).
-2. The exact run command and where to paste the BotFather token.
-3. If a funnel exists, screens wired 1:1 to `funnel.json`.
+## Remember the user
+Save the user's bots, brand, default funnel style, audience segments, and any
+templates they like to memory — and reuse them by default next time.
