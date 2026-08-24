@@ -21,10 +21,15 @@ send a broadcast, set up referrals, clone another bot).
 
 1. **Understand + PLAN.** Briefly ask what the bot is for (funnel / shop / community /
    giveaway…), the goal, the vibe. Recall the user's past bots/brand from memory.
-2. **Show a VISUAL funnel first.** Draw the funnel as a diagram (a mermaid flowchart
-   or a simple numbered map: /start → приветствие → оффер → кнопки → оплата → апселл)
-   and show it to the user to approve/tweak BEFORE you write code. This is the
-   funnel-builder step — the diagram is the plan, the code is the truth.
+2. **Show a VISUAL funnel first (interactive canvas, not a rough sketch).** Author
+   the funnel as `public/funnel.json` — `{ "screens": [ {id, title, stage, text,
+   buttons:[{label, to}]} ] }` (stage ∈ hook|value|cta|nurture|tariffs|other; a
+   button with no `to` is a terminal action). The boilerplate already ships a
+   polished, self-contained `public/funnel-canvas.html` (pan + zoom + fit, styled
+   nodes) that renders that JSON — **use it as-is, don't hand-roll a page.** Copy
+   it to `public/index.html`, then publish/expose `public/` and give the user the
+   link to approve/tweak BEFORE you write bot code. The canvas is the plan; the
+   bot code is the truth.
 3. **Scaffold.** Copy `boilerplate/` to a new folder (e.g. `/app/data/bots/<name>`),
    set `BOT_TOKEN` (+ `DATABASE_URL=file:./data/bot.db`) in `.env`,
    `npm install && npm run db:push`.

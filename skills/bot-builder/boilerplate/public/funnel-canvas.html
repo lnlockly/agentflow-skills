@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Воронка · Telegram-бот</title>
+<style>
+  :root{
+    --bg:#eceae4; --grid:#dcd8cf; --card:#ffffff; --ink:#161311; --sub:#6b655c;
+    --line:#c9c2b6; --accent:#e0202c; --ring:#e6e1d7; --shadow:0 6px 22px rgba(20,17,15,.10);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{font-family:'Montserrat','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden;-webkit-font-smoothing:antialiased}
+  /* top bar */
+  .bar{position:fixed;inset:0 0 auto 0;height:56px;display:flex;align-items:center;gap:12px;padding:0 18px;
+       background:rgba(236,234,228,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--ring);z-index:20}
+  .bar .dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+  .bar b{font-weight:800;letter-spacing:.2px}
+  .bar .sub{color:var(--sub);font-size:13px}
+  /* zoom controls */
+  .ctrls{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:20}
+  .ctrls button{width:42px;height:42px;border:1px solid var(--ring);background:#fff;border-radius:12px;font-size:20px;
+                cursor:pointer;box-shadow:var(--shadow);color:var(--ink);display:flex;align-items:center;justify-content:center;transition:transform .08s}
+  .ctrls button:hover{transform:translateY(-1px)}
+  .ctrls button:active{transform:translateY(0)}
+  .ctrls .lbl{font-size:12px}
+  /* stage counter chip */
+  .hint{position:fixed;left:16px;bottom:16px;z-index:20;background:#fff;border:1px solid var(--ring);border-radius:10px;
+        padding:8px 12px;font-size:12px;color:var(--sub);box-shadow:var(--shadow)}
+  /* canvas */
+  #stage{position:absolute;inset:56px 0 0 0;overflow:hidden;cursor:grab;
+         background-image:radial-gradient(var(--grid) 1.2px, transparent 1.2px);background-size:26px 26px}
+  #stage.grab{cursor:grabbing}
+  #world{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+  svg.edges{position:absolute;top:0;left:0;overflow:visible;pointer-events:none}
+  .node{position:absolute;width:280px;background:var(--card);border:1px solid var(--ring);border-radius:16px;
+        box-shadow:var(--shadow);overflow:hidden}
+  .node .head{display:flex;align-items:center;gap:8px;padding:12px 14px 8px}
+  .node .badge{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#fff;
+               background:var(--accent);padding:3px 8px;border-radius:999px}
+  .node .title{font-weight:800;font-size:15px}
+  .node .text{padding:0 14px 12px;color:var(--sub);font-size:13px;line-height:1.45}
+  .node .btns{border-top:1px solid var(--ring);padding:10px 12px;display:flex;flex-direction:column;gap:7px;background:#faf9f6}
+  .node .btn{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--ring);
+             border-radius:10px;padding:8px 10px;font-size:12.5px;font-weight:600;background:#fff}
+  .node .btn .arr{color:var(--accent);font-weight:800}
+  .node .btn.term{color:var(--sub);border-style:dashed}
+  /* stage accent colors */
+  .badge.hook{background:#e0202c}.badge.value{background:#f0a020}.badge.cta{background:#1f9d57}
+  .badge.nurture{background:#4c8dff}.badge.tariffs{background:#7a5cff}.badge.other{background:#6b655c}
+</style>
+</head>
+<body>
+  <div class="bar"><span class="dot"></span><b>Воронка бота</b><span class="sub" id="meta">загрузка…</span></div>
+  <div id="stage"><div id="world"><svg class="edges" id="edges"></svg></div></div>
+  <div class="hint">Колесо — зум · тащи — двигать · <b>⤢</b> — вписать</div>
+  <div class="ctrls">
+    <button id="zin" title="Приблизить">+</button>
+    <button id="zout" title="Отдалить">−</button>
+    <button id="fit" title="Вписать">⤢</button>
+  </div>
+<script>
+const NODE_W=280, COL=360, ROW=210, PADX=80, PADY=40;
+const world=document.getElementById('world'), stage=document.getElementById('stage'), edges=document.getElementById('edges');
+let view={x:40,y:40,k:1};
+
+function applyView(){ world.style.transform=`translate(${view.x}px,${view.y}px) scale(${view.k})`; }
+
+function layout(screens){
+  const byId=Object.fromEntries(screens.map(s=>[s.id,s]));
+  // BFS levels from the first screen (fallback: node with no incoming edge)
+  const incoming=new Set();
+  screens.forEach(s=>(s.buttons||[]).forEach(b=>b.to&&incoming.add(b.to)));
+  const root=(screens.find(s=>!incoming.has(s.id))||screens[0]).id;
+  const level={}, q=[[root,0]]; level[root]=0;
+  while(q.length){ const [id,d]=q.shift(); const s=byId[id]; if(!s)continue;
+    for(const b of s.buttons||[]){ if(b.to&&byId[b.to]&&level[b.to]==null){ level[b.to]=d+1; q.push([b.to,d+1]); } } }
+  screens.forEach(s=>{ if(level[s.id]==null) level[s.id]=0; });
+  // stack within a column
+  const cols={}; const pos={};
+  screens.forEach(s=>{ const L=level[s.id]; (cols[L]=cols[L]||[]).push(s.id); });
+  Object.keys(cols).forEach(L=>{ cols[L].forEach((id,i)=>{ pos[id]={x:PADX+L*COL, y:PADY+i*ROW}; }); });
+  return {pos, byId};
+}
+
+function nodeEl(s){
+  const el=document.createElement('div'); el.className='node'; el.id='n_'+s.id;
+  const stg=(s.stage||'other').toLowerCase();
+  const btns=(s.buttons||[]).map(b=>{
+    const term=!b.to;
+    return `<div class="btn ${term?'term':''}" data-to="${b.to||''}"><span>${esc(b.label||'')}</span><span class="arr">${term?'•':'→'}</span></div>`;
+  }).join('');
+  el.innerHTML=`<div class="head"><span class="badge ${stg}">${esc(s.stage||'шаг')}</span><span class="title">${esc(s.title||s.id)}</span></div>
+    ${s.text?`<div class="text">${esc(s.text)}</div>`:''}
+    ${btns?`<div class="btns">${btns}</div>`:''}`;
+  return el;
+}
+const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+function drawEdges(screens,pos){
+  const H=(id)=>document.getElementById('n_'+id)?.offsetHeight||120;
+  let paths='';
+  screens.forEach(s=>{ (s.buttons||[]).forEach((b,i)=>{
+    if(!b.to||!pos[b.to])return;
+    const a=pos[s.id], t=pos[b.to];
+    const x1=a.x+NODE_W, y1=a.y+40+i*30;
+    const x2=t.x, y2=t.y+40;
+    const mx=(x1+x2)/2;
+    paths+=`<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" fill="none" stroke="var(--line)" stroke-width="2.2"/>`
+         + `<circle cx="${x2}" cy="${y2}" r="3.5" fill="var(--accent)"/>`;
+  });});
+  edges.innerHTML=paths;
+}
+
+function fit(screens,pos){
+  const xs=screens.map(s=>pos[s.id].x), ys=screens.map(s=>pos[s.id].y);
+  const minX=Math.min(...xs), maxX=Math.max(...xs)+NODE_W, minY=Math.min(...ys), maxY=Math.max(...ys)+220;
+  const w=stage.clientWidth, h=stage.clientHeight;
+  const k=Math.min(w/(maxX-minX+120), h/(maxY-minY+120), 1.1);
+  view.k=Math.max(k,0.25);
+  view.x=(w-(maxX-minX)*view.k)/2 - minX*view.k;
+  view.y=(h-(maxY-minY)*view.k)/2 - minY*view.k;
+  applyView();
+}
+
+fetch('funnel.json').then(r=>r.json()).then(data=>{
+  const screens=data.screens||data.nodes||[];
+  document.getElementById('meta').textContent=`${screens.length} экранов`;
+  const {pos}=layout(screens);
+  screens.forEach(s=>{ const el=nodeEl(s); el.style.left=pos[s.id].x+'px'; el.style.top=pos[s.id].y+'px'; world.appendChild(el); });
+  requestAnimationFrame(()=>{ drawEdges(screens,pos); fit(screens,pos); });
+  // controls
+  document.getElementById('zin').onclick=()=>zoomBy(1.2);
+  document.getElementById('zout').onclick=()=>zoomBy(1/1.2);
+  document.getElementById('fit').onclick=()=>fit(screens,pos);
+}).catch(e=>{ document.getElementById('meta').textContent='ошибка загрузки funnel.json'; });
+
+function zoomBy(f){ const w=stage.clientWidth/2,h=stage.clientHeight/2; zoomAt(w,h,f); }
+function zoomAt(cx,cy,f){
+  const nk=Math.min(Math.max(view.k*f,0.25),2.5);
+  view.x=cx-(cx-view.x)*(nk/view.k); view.y=cy-(cy-view.y)*(nk/view.k); view.k=nk; applyView();
+}
+// wheel zoom (cursor-anchored)
+stage.addEventListener('wheel',e=>{ e.preventDefault(); const r=stage.getBoundingClientRect();
+  zoomAt(e.clientX-r.left, e.clientY-r.top, e.deltaY<0?1.12:1/1.12); }, {passive:false});
+// drag pan
+let drag=null;
+stage.addEventListener('pointerdown',e=>{ drag={x:e.clientX,y:e.clientY,vx:view.x,vy:view.y}; stage.classList.add('grab'); stage.setPointerCapture(e.pointerId); });
+stage.addEventListener('pointermove',e=>{ if(!drag)return; view.x=drag.vx+(e.clientX-drag.x); view.y=drag.vy+(e.clientY-drag.y); applyView(); });
+stage.addEventListener('pointerup',e=>{ drag=null; stage.classList.remove('grab'); });
+</script>
+</body>
+</html>
