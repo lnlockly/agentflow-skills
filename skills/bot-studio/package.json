@@ -1,0 +1,12 @@
+{
+  "name": "bot-studio-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Per-agent stdio MCP server (bot-admin): view + manage the Telegram bots the bot-builder agent creates.",
+  "bin": { "bot-studio-mcp": "./mcp-server.mjs" },
+  "scripts": { "start": "node mcp-server.mjs" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  }
+}

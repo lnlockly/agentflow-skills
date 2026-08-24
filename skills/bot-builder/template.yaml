@@ -17,7 +17,11 @@ install:
     - lnlockly/agentflow-skills/skills/funnel-builder
     - lnlockly/agentflow-skills/skills/bot-builder
     - lnlockly/agentflow-skills/skills/publish
-  mcp: []
+  mcp:
+    - name: bot-admin
+      install: lnlockly/agentflow-skills/skills/bot-studio
+      env:
+        BOTS_ROOT: "/app/data/bots"    # where the agent scaffolds bots
   setup: setup.sh
 
 onboarding:
