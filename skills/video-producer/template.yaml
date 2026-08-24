@@ -23,6 +23,9 @@ install:
       env:                                    # per-server env → the MCP process
         VIDEO_STUDIO_DIR: "$HERMES_HOME/skills/video-producer"   # the Remotion render project
         RENDER_CONCURRENCY: "2"               # raise on beefier pods to render faster
+        CP_SELF_URL: "$CP_SELF_URL"           # AI video (grok/veo) goes through the CP proxy
+        MARKET_URL: "$MARKET_URL"             # fallback CP base
+        MARKET_TOKEN: "$MARKET_TOKEN"         # owner token → charges the owner's tokens
   setup: setup.sh
 
 onboarding:

@@ -398,6 +398,66 @@ async function tool_generate_image({ prompt, out, size = '1024x1536', model = 'g
   return { ok: true, path: outPath, rel: outPath.startsWith(PUB) ? outPath.slice(PUB.length + 1) : undefined };
 }
 
+// --- AI video generation (anymodel via the CP video proxy) ------------------
+// Real AI text-to-video (grok / veo / omni), billed by the platform per
+// second×quality. Goes through CP (NOT the LLM gateway): the owner is charged
+// tokens and the secret provider key stays server-side. Uses the pod's owner
+// token (MARKET_TOKEN) against CP_SELF_URL.
+function cpVideo() {
+  const base = (process.env.CP_SELF_URL || process.env.MARKET_URL || '').replace(/\/+$/, '');
+  const token = process.env.MARKET_TOKEN;
+  if (!base || !token) throw new Error('AI video unavailable (CP_SELF_URL + MARKET_TOKEN not set)');
+  return { base, token };
+}
+
+async function tool_generate_ai_video({ model, prompt, duration = 8, resolution = '720p', aspect_ratio }) {
+  const { base, token } = cpVideo();
+  if (!prompt) throw new Error('prompt is required');
+  if (!model) throw new Error('model is required (see list_ai_video_models)');
+  const res = await fetch(`${base}/v1/me/video/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ model, prompt, duration, resolution, aspectRatio: aspect_ratio }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`video/generate ${res.status}: ${JSON.stringify(data).slice(0, 300)}`);
+  // { ok, requestId, model, resolution, duration, tokensCharged, balanceTokens }
+  return data;
+}
+
+async function tool_ai_video_status({ requestId, download = true, out }) {
+  const { base, token } = cpVideo();
+  if (!requestId) throw new Error('requestId is required');
+  const res = await fetch(`${base}/v1/me/video/${encodeURIComponent(requestId)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`video/status ${res.status}: ${JSON.stringify(data).slice(0, 300)}`);
+  const job = data?.job ?? data;
+  // Hunt for a finished video URL across common provider shapes.
+  const url =
+    job?.url || job?.video_url || job?.output_url || job?.result?.url ||
+    job?.output?.[0]?.url || job?.data?.[0]?.url || job?.assets?.[0]?.url || null;
+  if (url && download) {
+    const id = `ai-${createHash('sha1').update(requestId).digest('hex').slice(0, 10)}`;
+    const outPath = out ? (isAbsolute(out) ? out : join(OUT, out)) : join(OUT, `${id}.mp4`);
+    const bin = await fetch(url);
+    if (bin.ok) {
+      writeFileSync(outPath, Buffer.from(await bin.arrayBuffer()));
+      return { ok: true, status: 'ready', path: outPath, url, job };
+    }
+  }
+  return { ok: true, status: url ? 'ready' : 'pending', url, job };
+}
+
+async function tool_list_ai_video_models() {
+  const { base, token } = cpVideo();
+  const res = await fetch(`${base}/v1/me/video/models`, { headers: { Authorization: `Bearer ${token}` } });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`video/models ${res.status}`);
+  return data; // { ok, models:[{id, resolutions, ratesPerSecond, aspectFormat, durations}] }
+}
+
 // --- search_stock (Pexels) -------------------------------------------------
 async function tool_search_stock({ query, orientation = 'portrait', out }) {
   const key = process.env.PEXELS_API_KEY;
@@ -594,6 +654,39 @@ const TOOLS = [
     },
   },
   {
+    name: 'list_ai_video_models',
+    description: 'List available AI text-to-video models (grok/veo/omni) with resolutions + per-second token cost. Call before generate_ai_video to pick a model the owner can afford.',
+    inputSchema: { type: 'object', properties: {} },
+  },
+  {
+    name: 'generate_ai_video',
+    description: 'Generate a REAL AI text-to-video clip (grok/veo/omni via the platform). Charges the owner tokens = duration×quality (checked first; 402 if low balance). Async: returns {requestId, tokensCharged, balanceTokens}; then poll ai_video_status. Use this for genuine AI-generated footage; use render_reel for the Remotion subtitle/edit render.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        model: { type: 'string', description: 'Model id from list_ai_video_models, e.g. xai/grok-imagine-video-1.5, flow/veo-3.1.' },
+        prompt: { type: 'string', description: 'What the video should show.' },
+        duration: { type: 'number', description: 'Seconds. grok: 1-15; flow/omni: 4/6/8/10; flow/veo: 8.' },
+        resolution: { type: 'string', description: '480p | 720p | 1080p (per the model).' },
+        aspect_ratio: { type: 'string', description: '16:9 or 9:16 (mapped to landscape/portrait for flow models).' },
+      },
+      required: ['model', 'prompt'],
+    },
+  },
+  {
+    name: 'ai_video_status',
+    description: 'Poll an AI video job by requestId. When ready, downloads the mp4 and returns {status:"ready", path}. While rendering returns {status:"pending"}.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        requestId: { type: 'string', description: 'The id from generate_ai_video.' },
+        download: { type: 'boolean', description: 'Download the mp4 when ready (default true).' },
+        out: { type: 'string', description: 'Optional output path/name.' },
+      },
+      required: ['requestId'],
+    },
+  },
+  {
     name: 'search_stock',
     description: 'Find a real-world stock photo on Pexels. Returns {path, rel, credit}. Requires PEXELS_API_KEY.',
     inputSchema: {
@@ -650,6 +743,9 @@ const HANDLERS = {
   cut_clip: (a) => tool_cut_clip(a),
   face_crop: (a) => maybeAsync('face_crop', a.async, () => tool_face_crop(a)),
   generate_image: (a) => tool_generate_image(a),
+  list_ai_video_models: () => tool_list_ai_video_models(),
+  generate_ai_video: (a) => tool_generate_ai_video(a),
+  ai_video_status: (a) => tool_ai_video_status(a),
   search_stock: (a) => tool_search_stock(a),
   render_reel: (a) => maybeAsync('render_reel', a.async, () => tool_render_reel(a)),
   send_video: (a) => tool_send_video(a),

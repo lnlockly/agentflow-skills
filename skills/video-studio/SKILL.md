@@ -23,6 +23,7 @@ Reasoning lives in you. Capability lives in the tools. Never force a template.
 - `face_crop(video, mode)` → reframe horizontal → 9:16, `mode:"track"` follows the
   speaker (anti-jitter virtual camera), `mode:"general"` = blurred fit.
 - `generate_image(prompt)` → gpt-image-2 image. `search_stock(query)` → Pexels photo.
+ * `list_ai_video_models` / `generate_ai_video` / `ai_video_status` — REAL AI text-to-video (grok/veo/omni) via the platform, billed per second×quality to the owner. Poll ai_video_status for the mp4.
 - `render_reel(storyboard, footage)` → the branded Remotion reel (you author the
   storyboard — see the catalog below). ~60s → `async:true`, then `job_status`.
 - `send_video(chatId, path, caption[, threadId])` → deliver a real streaming 9:16
