@@ -153,6 +153,64 @@ async function tool_list_voices() {
   return data;
 }
 
+// --- MARKET (digital goods / LZT accounts via the CP proxy) ------------------
+// Buying spends the OWNER real money — so market_buy REQUIRES an explicit
+// confirm:true. Without it, the tool returns the item + price for the agent to
+// show the user and ASK; only after the user agrees does the agent call again
+// with confirm:true. This is the mandatory purchase-confirmation gate.
+async function tool_market_search({ category = 'steam', query, pmin, pmax, page }) {
+  const { base, token } = cpBase();
+  const qs = new URLSearchParams({ category });
+  if (query) qs.set('q', query);
+  if (pmin != null) qs.set('pmin', String(pmin));
+  if (pmax != null) qs.set('pmax', String(pmax));
+  if (page != null) qs.set('page', String(page));
+  const res = await fetch(`${base}/v1/me/market/catalog?${qs}`, { headers: auth(token) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`market/catalog ${res.status}`);
+  return data; // { ok, items, available }
+}
+
+async function tool_market_item({ id }) {
+  const { base, token } = cpBase();
+  if (id == null) throw new Error('id is required');
+  const res = await fetch(`${base}/v1/me/market/item/${encodeURIComponent(id)}`, { headers: auth(token) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`market/item ${res.status}`);
+  return data; // { ok, item }
+}
+
+async function tool_market_buy({ itemId, confirm }) {
+  const { base, token } = cpBase();
+  if (itemId == null) throw new Error('itemId is required');
+  // MANDATORY confirmation: never spend the owner's money on the first call.
+  if (confirm !== true) {
+    const info = await tool_market_item({ id: itemId }).catch(() => ({}));
+    return {
+      ok: false,
+      needsConfirmation: true,
+      item: info.item ?? { id: itemId },
+      message: 'Покупка спишет реальные деньги владельца. Покажи товар и цену пользователю, спроси согласие, затем вызови market_buy повторно с confirm:true.',
+    };
+  }
+  const res = await fetch(`${base}/v1/me/market/buy`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...auth(token) },
+    body: JSON.stringify({ itemId }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`market/buy ${res.status}: ${JSON.stringify(data).slice(0, 200)}`);
+  return data; // { ok, orderId, credentials, chargedUsd }
+}
+
+async function tool_market_orders() {
+  const { base, token } = cpBase();
+  const res = await fetch(`${base}/v1/me/market/orders`, { headers: auth(token) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`market/orders ${res.status}`);
+  return data; // { ok, orders }
+}
+
 // ===========================================================================
 // MCP wiring
 // ===========================================================================
@@ -204,6 +262,42 @@ const TOOLS = [
     },
   },
   {
+    name: 'market_search',
+    description: 'Search the digital-goods marketplace (LZT accounts: steam, social, etc.). Prices already include markup, in USD. Returns {items}. Use before market_buy.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        category: { type: 'string', description: 'e.g. steam, social, gaming (default steam).' },
+        query: { type: 'string', description: 'Optional title filter.' },
+        pmin: { type: 'number', description: 'Min price USD.' },
+        pmax: { type: 'number', description: 'Max price USD.' },
+        page: { type: 'number' },
+      },
+    },
+  },
+  {
+    name: 'market_item',
+    description: 'Get one marketplace item by id (our price).',
+    inputSchema: { type: 'object', properties: { id: { type: 'number' } }, required: ['id'] },
+  },
+  {
+    name: 'market_buy',
+    description: 'Buy a marketplace item — spends the OWNER real money. FIRST call it WITHOUT confirm to get the item+price, SHOW it to the user and ASK for agreement; only then call again with confirm:true. On success returns {orderId, credentials, chargedUsd}.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        itemId: { type: 'number' },
+        confirm: { type: 'boolean', description: 'Must be true to actually buy — set only after the user explicitly agreed.' },
+      },
+      required: ['itemId'],
+    },
+  },
+  {
+    name: 'market_orders',
+    description: 'List the owner past purchases (with delivered credentials).',
+    inputSchema: { type: 'object', properties: {} },
+  },
+  {
     name: 'list_voices',
     description: 'List the available TTS voices + per-character token cost.',
     inputSchema: { type: 'object', properties: {} },
@@ -216,6 +310,10 @@ const HANDLERS = {
   ai_video_status: (a) => tool_ai_video_status(a),
   speak: (a) => tool_speak(a),
   list_voices: () => tool_list_voices(),
+  market_search: (a) => tool_market_search(a),
+  market_item: (a) => tool_market_item(a),
+  market_buy: (a) => tool_market_buy(a),
+  market_orders: () => tool_market_orders(),
 };
 
 const server = new Server(
