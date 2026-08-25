@@ -3,3 +3,5 @@ data/
 dist/
 .env
 .setup-done
+src/funnels/cloned.ts
+src/funnels/cloned.identity.json

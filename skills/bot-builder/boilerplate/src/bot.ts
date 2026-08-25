@@ -5,7 +5,7 @@ import { conversations, createConversation, type ConversationFlavor } from "@gra
 import { config } from "./config.js";
 import { db } from "./db.js";
 import { ensureUser, parseStartPayload, referralLink } from "./features/referral.js";
-import { welcome } from "./funnels/welcome.js";
+import { activeFunnel, ACTIVE_NAME } from "./funnels/active.js";
 
 interface SessionData {}
 export type MyContext = ConversationFlavor<Context & SessionFlavor<SessionData>>;
@@ -16,8 +16,8 @@ export const bot = new Bot<MyContext>(config.BOT_TOKEN);
 bot.use(session({ initial: (): SessionData => ({}) }));
 bot.use(conversations());
 
-// Register every funnel here (each is a normal async function — see funnels/).
-bot.use(createConversation(welcome, "welcome"));
+// Register the active funnel (each is a normal async function — see funnels/).
+bot.use(createConversation(activeFunnel, ACTIVE_NAME));
 
 // On every update: find-or-create the user, attributing referral/UTM from a
 // /start deep-link on first contact. Idempotent + cheap.
@@ -32,7 +32,7 @@ bot.use(async (ctx, next) => {
 
 // Entry point → run the welcome funnel.
 bot.command("start", async (ctx) => {
-  await ctx.conversation.enter("welcome");
+  await ctx.conversation.enter(ACTIVE_NAME);
 });
 
 // Built-in: user sees their own referral link + how many they invited.
