@@ -126,13 +126,14 @@ our stack for THEIR product. This works for landings AND decks. Your hands:
    reference like this lives on its cinematic PHOTO/ART hero. **A real image is
    mandatory — never ship a flat CSS-gradient hero for a photographic reference.**
    In priority order:
-   - **Generate** it with `image_gen` if available — prompt from the brief (subject
-     + "cinematic, volumetric god-rays, dark, high-detail, full-bleed"). One art
-     direction across all sections.
-   - **If image_gen is not available/fails → SEARCH a real photo** with
+   - **Generate** it with your native **`image_generate`** tool (gpt-image-2 via the
+     gateway — it WORKS; just call it, don't infer availability from any tool
+     catalog). Prompt from the brief (subject + "cinematic, volumetric god-rays,
+     dark, high-detail, full-bleed"). One art direction across all sections.
+   - **Real photo instead / as fallback → `image_search`** with
      `image_search({ query: "<vibe query>", count: 8 })` (e.g. "deep ocean god rays
      jellyfish dark") and use the best full-bleed shot. Real photo beats a CSS
-     gradient every time — always take this fallback rather than settling for gradients.
+     gradient every time — always take this over settling for gradients.
    - Realistic subject (product, food, city) → `image_search` real photos directly.
    Copy the chosen `image.path` into `public/` and reference it as the hero `bg`.
 4. **Recreate the STRUCTURE + VIBE on-stack** — don't pixel-rip; rebuild the feeling
