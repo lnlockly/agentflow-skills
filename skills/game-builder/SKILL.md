@@ -30,15 +30,26 @@ grows with the user.
    (it loads, no console errors, assets present), then **let what you SEE drive the next
    iteration** — a visible defect is the next task, not a passing build. Capture via headless
    Chrome (guide) — mind the no-GPU note.
+7. **PUBLISH — REQUIRED, the deliverable is a PUBLIC URL, not a local port.** A running dev
+   server on `:5173` inside the pod is NOT reachable by the user — you MUST expose it. Build
+   the game and publish the static bundle through the frp tunnel:
+   ```bash
+   npx vite build                                              # → dist/ (self-contained)
+   python3 /opt/hermes-agent/publish.py serve dist <game-name> # prints the public https URL
+   ```
+   `publish.py serve` stays running to keep the tunnel alive and prints
+   `https://<sub>.<host>.sslip.io/` — **capture that exact line and hand it to the user.** Not
+   done until the user has a working link. (`publish.py` only serves a static folder — build
+   first; the live-editing dev server on `:5173` is for YOUR iteration, not for delivery.)
 
 ## Delivery — read the user's framing
-- **Live URL to play + steer.** Expose the dev server (publish/expose skill → sslip.io/frp)
-  and hand the user the link; you edit, they refresh. This is how they watch it come alive.
-- **An open-ended, exploratory task** (a direction, not a spec) → give the live game EARLY and
-  checkpoint at decisions of taste, scope, or cost; build freely in between.
+- **The deliverable is the public URL** from step 7 — the user opens it and plays. You keep the
+  dev server for your own edits; ship them the built, published link.
+- **An open-ended, exploratory task** (a direction, not a spec) → publish EARLY and checkpoint
+  at decisions of taste, scope, or cost; rebuild + republish as you go (same name = same URL).
 - **A finished brief handed over to execute** → make reasonable calls, steady progress, don't
-  block; finish with a **15–20s proof clip** of the game in action, and **watch it back before
-  you call it done.** If the user hasn't seen it running, it isn't proven.
+  block; finish with the public URL and, if the user hasn't watched it, a **15–20s proof clip**
+  of the game in action — **watch it back before you call it done.**
 
 ## Rules (the canon)
 - **Proof over claims** — the running game is the truth; a clean build is not.
