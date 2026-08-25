@@ -107,12 +107,19 @@ our stack for THEIR product. This works for landings AND decks. Your hands:
    - **Signature elements** — the things that MAKE the look (full-bleed photo hero,
      glassmorphism cards, numbered rule cards 01/02/03, avatar row, scroll cue).
    - **Motion** — reveals, parallax, drift.
-3. **Source the art to match the vibe** (this is what makes it «крутецкое»):
-   - Illustrative / artistic hero (ocean, space, abstract) → **generate** it with
-     `image_gen`, prompt built from the brief (subject + "cinematic, volumetric
-     god-rays, dark, high-detail, 9:16 full-bleed"). Keep ONE art direction across
-     sections.
-   - Realistic subject (product, food, city) → `img-search.mjs` real photos.
+3. **Source the art to match the vibe** — THIS is what makes it «крутецкое». A
+   reference like this lives on its cinematic PHOTO/ART hero. **A real image is
+   mandatory — never ship a flat CSS-gradient hero for a photographic reference.**
+   In priority order:
+   - **Generate** it with `image_gen` if available — prompt from the brief (subject
+     + "cinematic, volumetric god-rays, dark, high-detail, full-bleed"). One art
+     direction across all sections.
+   - **If image_gen is not available/fails → SEARCH a real photo** with
+     `node img-search.mjs "<vibe query>" 8` (e.g. "deep ocean god rays jellyfish
+     dark") and use the best full-bleed shot. Real photo beats a CSS gradient every
+     time — always take this fallback rather than settling for gradients.
+   - Realistic subject (product, food, city) → `img-search.mjs` real photos directly.
+   Download the chosen image into `public/` and reference it as the hero `bg`.
 4. **Recreate the STRUCTURE + VIBE on-stack** — don't pixel-rip; rebuild the feeling
    with real components, and write the user's OWN copy. Set the brief's palette in
    `src/index.css` tokens. Concrete recipes for this class of look:
