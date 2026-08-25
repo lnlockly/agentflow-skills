@@ -86,6 +86,58 @@ To make a deck:
    `import { Deck } from "@/deck/Deck"; import { slides, theme } from "@/deck/slides"; export default function App(){ return <Deck slides={slides} theme={theme} />; }`
 6. `npm run build` → **publish** (step 7) → return the link. Same as landings.
 
+## Reference-driven mode (build from a picture or a site — «как вот это»)
+The strongest way to hit a look the user loves: they give a REFERENCE — a
+screenshot / Pinterest image, or a URL — and you recreate that art direction on
+our stack for THEIR product. This works for landings AND decks. Your hands:
+`vision` (see an image), `browser` (open a URL + screenshot it), `image_gen`
+(make matching hero art), `img-search.mjs` (real photos). Flow:
+
+1. **SEE it.**
+   - Image reference → analyse it with your **vision** tool.
+   - URL reference → open it in the **browser**, screenshot the full page (scroll),
+     then analyse that screenshot with **vision** (peek at the DOM/CSS for exact
+     colors/fonts if useful).
+2. **Write a DESIGN BRIEF** and show it as the plan (this replaces the plain
+   section list). Extract, concretely:
+   - **Sections** top→bottom (the layout rhythm).
+   - **Palette** as exact hex — background, text, accent, glow.
+   - **Typography** — scale + weight (e.g. huge light display heading, small caps labels).
+   - **Mood** — one line (e.g. "cinematic underwater, dark, glowing").
+   - **Signature elements** — the things that MAKE the look (full-bleed photo hero,
+     glassmorphism cards, numbered rule cards 01/02/03, avatar row, scroll cue).
+   - **Motion** — reveals, parallax, drift.
+3. **Source the art to match the vibe** (this is what makes it «крутецкое»):
+   - Illustrative / artistic hero (ocean, space, abstract) → **generate** it with
+     `image_gen`, prompt built from the brief (subject + "cinematic, volumetric
+     god-rays, dark, high-detail, 9:16 full-bleed"). Keep ONE art direction across
+     sections.
+   - Realistic subject (product, food, city) → `img-search.mjs` real photos.
+4. **Recreate the STRUCTURE + VIBE on-stack** — don't pixel-rip; rebuild the feeling
+   with real components, and write the user's OWN copy. Set the brief's palette in
+   `src/index.css` tokens. Concrete recipes for this class of look:
+   - **Full-bleed hero**: `min-h-screen` section, the generated image as
+     `bg-cover bg-center`, a dark scrim (`bg-black/40`) + a bottom gradient, huge
+     heading (`text-7xl md:text-8xl font-light tracking-tight`) with a colored word.
+   - **Glassmorphism card**: `rounded-3xl border border-white/15 bg-white/5
+     backdrop-blur-md shadow-2xl` (the frosted panels + numbered cards).
+   - **Numbered rule cards**: big `01 / 02 / 03` in a light weight over the glass.
+   - **Team row**: circular avatars + name + role, subtle enter/hover.
+   - **Motion**: framer-motion reveals on scroll, a slow parallax/drift on the hero.
+5. Build → **publish** → return the link (as always).
+
+Worked example — reading the "Blue Ocean" reference into a brief: sections =
+hero → 3 numbered rules (glass) → "A SPACE" feature → 3 category cards (Sharks/
+Fish/Whales, glass) → team (3 avatars) → CTA; palette bg `#05070d`, text `#eef4ff`,
+accent glow `#2fa4ff`; type = giant light display + tiny uppercase labels; mood =
+"deep cinematic ocean, god-rays, bioluminescent glow"; signatures = full-bleed
+generated underwater hero, glass panels, numbered cards, avatar row; motion =
+soft rise + hero drift. Then build THAT structure for the user's product, with a
+freshly generated on-brand hero.
+
+It's INSPIRATION, not theft: match layout/palette/type/mood; the reference sets the
+art direction, the user's product sets the content and copy.
+
 ## Rules
 - Show the structure/plan first — never silently build the whole page.
 - Reuse ready components over hand-writing UI — that's the superpower.
