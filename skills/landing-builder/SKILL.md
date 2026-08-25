@@ -158,6 +158,14 @@ freshly generated on-brand hero.
 It's INSPIRATION, not theft: match layout/palette/type/mood; the reference sets the
 art direction, the user's product sets the content and copy.
 
+**🔴 NEVER FABRICATE A REFERENCE.** If you cannot actually SEE the reference — the
+browser tool won't open the URL, the screenshot fails, the image won't load, the
+page won't scrape — then STOP and tell the user plainly ("не смог открыть референс
+— браузер не поднялся"). Do NOT invent a design, and do NOT reuse content from a
+DIFFERENT landing you built earlier (a coding-school URL must never come out as an
+ocean page). A published page that isn't the requested reference is a FALSE result,
+worse than an honest failure. Only build from a reference you genuinely loaded.
+
 ## Rules
 - Show the structure/plan first — never silently build the whole page.
 - Reuse ready components over hand-writing UI — that's the superpower.
