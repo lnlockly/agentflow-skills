@@ -52,9 +52,12 @@ const OUT = (() => {
 /** The CP base + owner token. Every tool bills the owner through this. */
 function cpBase() {
   const base = (process.env.CP_SELF_URL || process.env.MARKET_URL || '').replace(/\/+$/, '');
-  const token = process.env.MARKET_TOKEN;
+  // ONE owner-scoped CP token for everything (video/tts/market/proxy/wallet).
+  // CP_TOKEN is the current name; MARKET_TOKEN is the legacy fallback for pods
+  // provisioned before the rename (they keep working until reprovisioned).
+  const token = process.env.CP_TOKEN || process.env.MARKET_TOKEN;
   if (!base || !token) {
-    throw new Error('media tools unavailable (CP_SELF_URL/MARKET_URL + MARKET_TOKEN not set)');
+    throw new Error('CP tools unavailable (CP_SELF_URL + CP_TOKEN not set)');
   }
   return { base, token };
 }
