@@ -1,0 +1,45 @@
+# AgentFlow template manifest — THIN OUTER lifecycle contract.
+# Guts (engine guide + asset-gen skill + tools) live inside the skill, like
+# bot-builder bundles scout/ + boilerplate/. Games are heavier (Vite build +
+# headless Chrome capture) → 4Gi. Validates against TemplateManifest.
+id: game-builder
+name: Строитель игр
+tagline: Опиши игру — соберу играбельную в браузере, найду/сгенерю арт и дам ссылку поиграть.
+category: games
+tier: premium
+model: gpt-5.5
+
+resources:
+  memMb: 4096
+
+install:
+  skills:
+    - lnlockly/agentflow-skills/skills/game-builder
+    - lnlockly/agentflow-skills/skills/publish
+  setup: setup.sh
+
+onboarding:
+  greeting: |
+    Привет! 🎮 Опиши игру, которую хочешь — жанр, вайб, идею. Я соберу
+    настоящую играбельную игру в браузере, подберу или сгенерю графику и дам
+    тебе ссылку поиграть прямо с телефона. Покажу результат живьём, а не на словах.
+  can_do:
+    - Соберу играбельную браузерную игру под твою идею
+    - Найду бесплатный арт (CC0) или сгенерю нужный
+    - Дам живую ссылку — играй и рули прямо в процессе
+    - Покажу короткое видео-доказательство, что игра работает
+  examples:
+    - "сделай аркаду где машинка объезжает препятствия"
+    - assets/cover.jpg
+
+config:
+  - key: idea
+    label: Какую игру хочешь
+    type: text
+  - key: style
+    label: Стиль/вайб (например пиксель, лоу-поли, неон)
+    type: text
+
+showcase:
+  cover: assets/cover.jpg
+  price: 1500
