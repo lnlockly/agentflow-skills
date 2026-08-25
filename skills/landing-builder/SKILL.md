@@ -1,65 +1,97 @@
 ---
 name: landing-builder
-description: Build a polished landing page for the user by COMPOSING ready-made components from registries (threeui 3D/shader heroes, shadcn/ui, 21st.dev), then brand it and publish it to a public URL. Use whenever the user wants a landing page, promo page, sales page, or a page for an ad campaign.
+description: Build a polished landing page by COMPOSING ready-made components from registries (threeui 3D/shader heroes, shadcn/ui, 21st.dev), brand it, and publish it to a public URL. Use whenever the user wants a landing / promo / sales page.
 ---
 
 # Строитель лендингов
 
-You build the user a beautiful landing page by **reusing ready-made components**
-— you don't hand-code UI, you pull proven blocks from registries and assemble +
-brand them. A ready scaffold ships with this skill at **`boilerplate/`** (Vite +
-React + Tailwind + shadcn — the base every registry targets).
+You build a beautiful landing by **reusing ready-made components** — you don't
+hand-code UI, you pull proven blocks from registries and assemble + brand them.
+
+A ready scaffold (Vite + React + Tailwind + shadcn, already `npm install`-ed) is
+pre-installed at **`/app/data/landing-studio`**.
 
 ## Autonomy (важно)
-Юзер только описывает продукт («сделай лендинг для кофейни, хочу ссылку»). ТЫ делаешь весь
-цикл сам, до конца, за один заход — не спрашиваешь команды/пути/шаги и не останавливаешься на
-полпути. ВСЕГДА заканчиваешь публикацией и отдаёшь публичную https-ссылку — лендинг без живой
-ссылки не готов. Пауза допустима только на утверждение структуры (шаг 2), и её можно пропустить,
-если юзер сказал «просто сделай / хочу ссылку».
+The user only describes their product ("сделай лендинг для кофейни, хочу ссылку").
+YOU do the ENTIRE flow yourself, end to end, in one go — you don't ask the user
+for commands, paths, or steps, and you don't stop halfway. You ALWAYS finish by
+**publishing the site and returning the public https link** — a landing without a
+live link is not done. The only thing you may pause for is the structure approval
+in step 2 (and even that you can skip if the user said "just do it / хочу ссылку").
 
-## When to use
-The user wants a landing / promo / sales page (for a product, course, service, ad).
-
-## The flow (be DYNAMIC — plan first, don't just build)
-
-1. **Understand + recall.** Ask what's promoted, for whom, the goal, the vibe.
-   Recall the user's brand/style from memory and default to it.
-2. **Show the STRUCTURE first.** Propose the section list (hero → выгоды → как
-   работает → цены → отзывы → FAQ → CTA) as a short plan / wireframe, and get the
-   user to approve/tweak BEFORE assembling. This is the plan step.
-3. **Scaffold.** Copy `boilerplate/` to a folder (e.g. `/app/data/landings/<name>`),
-   `npm install`.
-4. **Compose from READY blocks.** For each section pick a ready component and pull it:
+## Flow (be DYNAMIC — plan first)
+1. **Understand + recall** the user's product, audience, goal, brand (from memory).
+2. **Show the STRUCTURE first** — propose the section list (hero → выгоды → как
+   работает → цены → отзывы → FAQ → CTA) and get approval BEFORE building.
+3. **Scaffold a copy:**
+   ```bash
+   cp -r /app/data/landing-studio /app/data/landings/<name> && cd /app/data/landings/<name>
+   ```
+4. **Compose from READY blocks** — for each section pull a component:
    ```bash
    npx shadcn@latest add "<registry-url>" --yes
    ```
-   Sources (see `sources.md`): **threeui** (3D/shader wow-heroes+backgrounds),
-   **shadcn/ui** (primitives), **21st.dev** & **shadcnblocks** (marketing blocks).
-   Import the pulled component into a section under `src/sections/` and compose in
-   `src/App.tsx`. Reorder/add sections freely — it's just code.
-5. **Brand it.** Edit the design tokens in `src/index.css` (`--primary` = brand
-   color, radius, etc.), write the real copy yourself, generate images with your
-   native image tool (gpt-image-2), and add a threeui hero for wow-factor.
-6. **Preview + iterate.** `npm run build` must stay green; `npm run preview` to view.
-7. **Publish (ВСЕГДА — это результат).** Опубликуй собранный `dist/` и отдай ссылку:
+   Sources (see the skill's `sources.md`): **threeui** 3D/shader heroes
+   (`https://threeui.com/r/<c>.json`), **shadcn/ui** primitives, **21st.dev** &
+   **shadcnblocks** marketing blocks. Import into `src/sections/` + compose in
+   `src/App.tsx`.
+5. **Brand it** — edit design tokens in `src/index.css` (`--primary` = brand
+   color, radius), write real copy, generate images with your image tool, add a
+   threeui hero. Keep `npm run build` green.
+6. **Preview** — `npm run build`, then `npm run preview` (serves on :4173).
+7. **Publish (ALWAYS — this is the deliverable).** Expose the built `dist/` at a
+   public https URL and give the user the link:
    ```bash
-   python3 /opt/hermes-agent/publish.py serve <landing-dir>/dist <name>
+   python3 /opt/hermes-agent/publish.py serve /app/data/landings/<name>/dist <name>
    ```
-   Скрипт печатает `https://…sslip.io/` — верни ЭТУ ссылку юзеру. Не останавливайся на
-   локальном билде: юзеру нужна ссылка, которую можно открыть.
+   It prints `https://…sslip.io/`. Return THAT link to the user as the result.
+   Never stop at a local build — the user wants a link they can open.
 
-## Rules (the canon)
-- **Show the structure/plan first** — never silently build the whole page.
-- **Reuse ready components** (registries) over hand-writing UI — that's the superpower.
-- **Brand via the design tokens** in `src/index.css` (one place), not scattered hex.
-- Keep `npm run build` green after every block you add.
-- Always **review a pulled component** before shipping (community registries are 3rd-party).
+## Presentation mode (animated HTML decks — same stack, with motion)
+When the user wants a PRESENTATION / slide deck (not a web page), build an
+**animated deck** on this same stack (framer-motion). The engine is pre-installed:
+- `src/deck/Deck.tsx` — engine: keyboard nav (←/→/space), spring/blur transitions,
+  animated aurora background, progress bar. You don't edit this.
+- `src/deck/slides.tsx` — YOU write the slides here as JSX (one idea per slide,
+  `motion` reveals). An AgentFlow-pitch example is already there — replace it.
+- `src/deck/Counter.tsx` (count-up numbers) + `src/deck/AuroraBg.tsx`.
 
-## Registries (pluggable — add more anytime)
-See `sources.md`. Adding a new source = adding a registry URL; the `shadcn add`
-mechanism is the same for all. threeui is MIT and agent-friendly (each component
-page offers a copy-prompt).
+To make a deck:
+1. **Research** the topic for REAL facts/dates/figures. **Plan** the slide outline
+   and show it first (skip if the user said "просто сделай").
+2. **Real images** — for historical/factual/serious topics a photo must be REAL,
+   never generated. Search them, and use ENOUGH of them (aim for a photo on most
+   content slides — not 1–2 for the whole deck):
+   ```bash
+   node img-search.mjs "<query>" 6        # Openverse: FREE, world libraries (Wikimedia, Smithsonian, Europeana, museums) + attribution
+   ```
+   Download the chosen `url` and **downscale it** so it loads fast (archival
+   scans are often 3–5 MB) — keep each under ~600 KB / ~1600px wide:
+   ```bash
+   curl -sL "<url>" -o /tmp/x && npx --yes sharp-cli -i /tmp/x -o public/<name>.jpg resize 1600 --withoutEnlargement -q 82
+   # (no sharp? curl -L "<url>" -o public/<name>.jpg — but then keep the deck to a few images)
+   ```
+   Reference it as a slide `bg: "url(/<name>.jpg)"` (Deck preloads all bg images,
+   so photos appear instantly) or an `<img>`; keep `attribution` in a small footnote.
+3. **CHOOSE the theme — do NOT ship a fixed look.** Export a `theme` from
+   `slides.tsx`; the engine has NO baked colors. Pick the palette FOR THE TOPIC:
+   - solemn/history/war/science → ashen, desaturated, `aurora: []` or muted, e.g.
+     `export const theme = { base:"#0d0b09", aurora:["#3a2f22","#241c14"], accent:"#b9a37a" }`
+   - pitch/product/event → vivid + energetic (bright accent, 3 aurora colors).
+   Never leave the AgentFlow-red pitch theme on a serious deck.
+4. **Write `src/deck/slides.tsx`** — each slide `{ id, node: <JSX>, bg? }`. Use
+   image-background slides (`bg: "url(/photo.jpg)"` + a dark scrim `<div>` over it
+   for legible text), `<Counter>` for stats, staggered `motion` reveals.
+5. **Point the app at the deck:** set `src/App.tsx` to
+   `import { Deck } from "@/deck/Deck"; import { slides, theme } from "@/deck/slides"; export default function App(){ return <Deck slides={slides} theme={theme} />; }`
+6. `npm run build` → **publish** (step 7) → return the link. Same as landings.
+
+## Rules
+- Show the structure/plan first — never silently build the whole page.
+- Reuse ready components over hand-writing UI — that's the superpower.
+- Brand via the design tokens in `src/index.css` (one place).
+- Keep the build green after every block. Review pulled 3rd-party components.
 
 ## Remember the user
-Save the user's brand (colors, fonts, logo, tone), favourite sections/blocks, and
-past landings to memory — and reuse them by default next time.
+Save the user's brand (colors/fonts/tone), favourite blocks, and past landings to
+memory — reuse them by default next time.
