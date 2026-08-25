@@ -458,6 +458,35 @@ async function tool_list_ai_video_models() {
   return data; // { ok, models:[{id, resolutions, ratesPerSecond, aspectFormat, durations}] }
 }
 
+// --- TTS (anymodel edge-tts via the CP proxy) -------------------------------
+// Text-to-speech, billed by the platform per character. Synchronous: CP returns
+// the mp3 (base64); we save it and hand back the path for use as reel narration.
+async function tool_speak({ text, voice = 'edge-tts/ru-RU-SvetlanaNeural', out }) {
+  const { base, token } = cpVideo();
+  if (!text) throw new Error('text is required');
+  const model = /^edge-tts\//.test(voice) ? voice : `edge-tts/${voice}`;
+  const res = await fetch(`${base}/v1/me/tts/speak`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ model, input: text }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`tts/speak ${res.status}: ${JSON.stringify(data).slice(0, 200)}`);
+  if (!data.audioBase64) return { ok: false, error: 'no audio returned', meta: data };
+  const id = `tts-${createHash('sha1').update(text).digest('hex').slice(0, 10)}`;
+  const outPath = out ? (isAbsolute(out) ? out : join(OUT, out)) : join(OUT, `${id}.mp3`);
+  writeFileSync(outPath, Buffer.from(data.audioBase64, 'base64'));
+  return { ok: true, path: outPath, chars: data.chars, tokensCharged: data.tokensCharged, balanceTokens: data.balanceTokens };
+}
+
+async function tool_list_voices() {
+  const { base, token } = cpVideo();
+  const res = await fetch(`${base}/v1/me/tts/voices`, { headers: { Authorization: `Bearer ${token}` } });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`tts/voices ${res.status}`);
+  return data;
+}
+
 // --- search_stock (Pexels) -------------------------------------------------
 async function tool_search_stock({ query, orientation = 'portrait', out }) {
   const key = process.env.PEXELS_API_KEY;
@@ -687,6 +716,24 @@ const TOOLS = [
     },
   },
   {
+    name: 'speak',
+    description: 'Text-to-speech (AI voiceover) via the platform. Billed per character to the owner. Returns {path} to an mp3 you can use as narration/voiceover in render_reel. Voices: edge-tts/<voice>, e.g. edge-tts/ru-RU-SvetlanaNeural, edge-tts/ru-RU-DmitryNeural, edge-tts/en-US-AriaNeural.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        text: { type: 'string', description: 'The text to speak.' },
+        voice: { type: 'string', description: 'edge-tts voice id, e.g. edge-tts/ru-RU-SvetlanaNeural (default) or edge-tts/en-US-AriaNeural.' },
+        out: { type: 'string', description: 'Optional output path/name.' },
+      },
+      required: ['text'],
+    },
+  },
+  {
+    name: 'list_voices',
+    description: 'List the available TTS voices + per-character token cost.',
+    inputSchema: { type: 'object', properties: {} },
+  },
+  {
     name: 'search_stock',
     description: 'Find a real-world stock photo on Pexels. Returns {path, rel, credit}. Requires PEXELS_API_KEY.',
     inputSchema: {
@@ -746,6 +793,8 @@ const HANDLERS = {
   list_ai_video_models: () => tool_list_ai_video_models(),
   generate_ai_video: (a) => tool_generate_ai_video(a),
   ai_video_status: (a) => tool_ai_video_status(a),
+  speak: (a) => tool_speak(a),
+  list_voices: () => tool_list_voices(),
   search_stock: (a) => tool_search_stock(a),
   render_reel: (a) => maybeAsync('render_reel', a.async, () => tool_render_reel(a)),
   send_video: (a) => tool_send_video(a),
