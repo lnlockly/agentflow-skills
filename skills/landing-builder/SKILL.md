@@ -62,14 +62,16 @@ To make a deck:
 2. **Real images** — for historical/factual/serious topics a photo must be REAL,
    never generated. Search them, and use ENOUGH of them (aim for a photo on most
    content slides — not 1–2 for the whole deck):
-   ```bash
-   node img-search.mjs "<query>" 6        # Openverse: FREE, world libraries (Wikimedia, Smithsonian, Europeana, museums) + attribution
-   ```
-   Download the chosen `url` and **downscale it** so it loads fast (archival
+   Use the native **`image_search` tool** — it searches Openverse (FREE: Wikimedia,
+   Smithsonian, Europeana, museums) / Unsplash AND downloads only VALID images to
+   disk (verifies Content-Type; skips broken HTML/hotlink pages), returning local
+   paths + attribution:
+   `image_search({ query: "<query>", count: 6 })` → `{ images:[{ path, attribution }] }`.
+   Take each `path` and **downscale it** into `public/` so it loads fast (archival
    scans are often 3–5 MB) — keep each under ~600 KB / ~1600px wide:
    ```bash
-   curl -sL "<url>" -o /tmp/x && npx --yes sharp-cli -i /tmp/x -o public/<name>.jpg resize 1600 --withoutEnlargement -q 82
-   # (no sharp? curl -L "<url>" -o public/<name>.jpg — but then keep the deck to a few images)
+   npx --yes sharp-cli -i "<path>" -o public/<name>.jpg resize 1600 --withoutEnlargement -q 82
+   # (no sharp? cp "<path>" public/<name>.jpg — but then keep the deck to a few images)
    ```
    Reference it as a slide `bg: "url(/<name>.jpg)"` (Deck preloads all bg images,
    so photos appear instantly) or an `<img>`; keep `attribution` in a small footnote.
@@ -91,7 +93,7 @@ The strongest way to hit a look the user loves: they give a REFERENCE — a
 screenshot / Pinterest image, or a URL — and you recreate that art direction on
 our stack for THEIR product. This works for landings AND decks. Your hands:
 `vision` (see an image), `browser` (open a URL + screenshot it), `image_gen`
-(make matching hero art), `img-search.mjs` (real photos). Flow:
+(make matching hero art), `image_search` (real photos — downloaded + verified). Flow:
 
 1. **SEE it — and for a URL, MEASURE it (this is proper cloning, not guessing).**
    - Image reference → analyse it with your **vision** tool.
@@ -128,11 +130,11 @@ our stack for THEIR product. This works for landings AND decks. Your hands:
      + "cinematic, volumetric god-rays, dark, high-detail, full-bleed"). One art
      direction across all sections.
    - **If image_gen is not available/fails → SEARCH a real photo** with
-     `node img-search.mjs "<vibe query>" 8` (e.g. "deep ocean god rays jellyfish
-     dark") and use the best full-bleed shot. Real photo beats a CSS gradient every
-     time — always take this fallback rather than settling for gradients.
-   - Realistic subject (product, food, city) → `img-search.mjs` real photos directly.
-   Download the chosen image into `public/` and reference it as the hero `bg`.
+     `image_search({ query: "<vibe query>", count: 8 })` (e.g. "deep ocean god rays
+     jellyfish dark") and use the best full-bleed shot. Real photo beats a CSS
+     gradient every time — always take this fallback rather than settling for gradients.
+   - Realistic subject (product, food, city) → `image_search` real photos directly.
+   Copy the chosen `image.path` into `public/` and reference it as the hero `bg`.
 4. **Recreate the STRUCTURE + VIBE on-stack** — don't pixel-rip; rebuild the feeling
    with real components, and write the user's OWN copy. Set the brief's palette in
    `src/index.css` tokens. Concrete recipes for this class of look:
