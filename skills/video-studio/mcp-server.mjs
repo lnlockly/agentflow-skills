@@ -434,20 +434,22 @@ async function tool_ai_video_status({ requestId, download = true, out }) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`video/status ${res.status}: ${JSON.stringify(data).slice(0, 300)}`);
   const job = data?.job ?? data;
-  // Hunt for a finished video URL across common provider shapes.
-  const url =
-    job?.url || job?.video_url || job?.output_url || job?.result?.url ||
-    job?.output?.[0]?.url || job?.data?.[0]?.url || job?.assets?.[0]?.url || null;
-  if (url && download) {
-    const id = `ai-${createHash('sha1').update(requestId).digest('hex').slice(0, 10)}`;
-    const outPath = out ? (isAbsolute(out) ? out : join(OUT, out)) : join(OUT, `${id}.mp4`);
-    const bin = await fetch(url);
+  if (download) {
+    // Download from the CP CONTENT-PROXY (owner-authorized; the provider key stays
+    // in CP). The finished bytes live behind CP, NOT a public url — a 200 here is
+    // the source of truth for readiness (works across grok 'done' + flow 'completed').
+    const bin = await fetch(`${base}/v1/me/video/${encodeURIComponent(requestId)}/content`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (bin.ok) {
+      const id = `ai-${createHash('sha1').update(requestId).digest('hex').slice(0, 10)}`;
+      const outPath = out ? (isAbsolute(out) ? out : join(OUT, out)) : join(OUT, `${id}.mp4`);
       writeFileSync(outPath, Buffer.from(await bin.arrayBuffer()));
-      return { ok: true, status: 'ready', path: outPath, url, job };
+      return { ok: true, status: 'ready', path: outPath, job };
     }
+    return { ok: true, status: 'pending', job };
   }
-  return { ok: true, status: url ? 'ready' : 'pending', url, job };
+  return { ok: true, status: 'unknown', job };
 }
 
 async function tool_list_ai_video_models() {

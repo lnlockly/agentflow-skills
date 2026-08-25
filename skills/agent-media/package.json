@@ -1,0 +1,14 @@
+{
+  "name": "agent-media-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Thin DEFAULT stdio MCP server exposing the primitive CP-proxy media tools (AI video + TTS) to every AgentFlow agent.",
+  "bin": { "agent-media-mcp": "./mcp-server.mjs" },
+  "scripts": {
+    "start": "node mcp-server.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}
