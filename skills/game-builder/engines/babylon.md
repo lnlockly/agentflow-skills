@@ -30,6 +30,24 @@ frp / sslip.io path the bot-builder uses for funnels): give the user
 Run the server under **pm2** so it survives (`pm2 start "npm run dev" --name <game>` +
 `pm2 save`). Persist the project under `/app/data/` so it survives pod restarts.
 
+## Assets (silent BUILD trap — bit us live)
+
+**Never load an asset by a raw `/src/...` string path** (e.g. `new Texture("/src/assets/tex/x.jpg")`).
+It works in `npm run dev` (Vite serves `/src/`) but **404s in the built `dist/`** — Vite only
+copies assets that are IMPORTED — so the published game renders blank with no error. Two safe ways:
+
+- **Import with `?url`** and pass the resolved URL:
+  `import grassUrl from "./assets/tex/Grass005/Color.jpg?url"; new Texture(grassUrl, scene);`
+- **or put the file in `public/`** and reference it by root path (`new Texture("/tex/x.jpg")`) —
+  `public/` is copied verbatim into `dist/`.
+
+Verify after building: `npm run build && curl -sI http://<served-dist>/<asset-path>` must be 200,
+not 404. A dev-only path is the #1 reason a published game looks empty.
+
+Also add a **loading screen**: gate the canvas behind a "Загрузка…" overlay you remove only after
+`scene.executeWhenReady()` + your textures/GLBs report loaded — otherwise the first seconds are a
+black screen.
+
 ## Imports (silent runtime trap)
 
 Import from `@babylonjs/core` subpaths (e.g. `@babylonjs/core/Meshes/meshBuilder`). Some
