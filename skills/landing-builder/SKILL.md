@@ -93,11 +93,24 @@ our stack for THEIR product. This works for landings AND decks. Your hands:
 `vision` (see an image), `browser` (open a URL + screenshot it), `image_gen`
 (make matching hero art), `img-search.mjs` (real photos). Flow:
 
-1. **SEE it.**
+1. **SEE it — and for a URL, MEASURE it (this is proper cloning, not guessing).**
    - Image reference → analyse it with your **vision** tool.
-   - URL reference → open it in the **browser**, screenshot the full page (scroll),
-     then analyse that screenshot with **vision** (peek at the DOM/CSS for exact
-     colors/fonts if useful).
+   - URL reference → open it in the **browser**, scroll + screenshot the full page
+     for the vision read, THEN extract the real **design tokens** by running JS in
+     the page — don't eyeball colors from a screenshot when you can read the truth:
+     ```js
+     // in the browser tool, evaluate on the loaded page:
+     const g = (el,p) => getComputedStyle(el)[p];
+     ({ bodyBg:g(document.body,'backgroundColor'),
+        bodyColor:g(document.body,'color'),
+        font:g(document.body,'fontFamily'),
+        h1:(h=>h&&({size:g(h,'fontSize'),weight:g(h,'fontWeight'),color:g(h,'color')}))(document.querySelector('h1')),
+        radii:[...document.querySelectorAll('*')].map(e=>g(e,'borderRadius')).filter(r=>r!=='0px').slice(0,8),
+        imgs:[...document.images].map(i=>i.currentSrc).slice(0,12) })
+     ```
+     Use the returned exact hex/rgb, font family, sizes, radii as your tokens. Pull
+     the real hero/section images from `imgs` (download them into `public/`) when
+     recreating that same site; swap brand logos + copy for the user's own product.
 2. **Write a DESIGN BRIEF** and show it as the plan (this replaces the plain
    section list). Extract, concretely:
    - **Sections** top→bottom (the layout rhythm).
