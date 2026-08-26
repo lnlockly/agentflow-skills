@@ -1,6 +1,9 @@
-# Light deps for the free-asset search + kit slicing. asset_search.py uses only
-# the stdlib; grid_slice.py needs Pillow. rembg (transparency matting) is HEAVY
-# (onnxruntime + a model download) — install it on demand only if a game needs
-# sprite transparency:  pip install rembg pymatting
+xai-sdk
+google-genai
 requests
+numpy
 pillow
+rembg
+pymatting
+onnxruntime-gpu
+nvidia-cudnn-cu12==9.*
