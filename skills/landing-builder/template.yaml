@@ -9,7 +9,7 @@ tier: premium
 model: gpt-5.5
 
 resources:
-  memMb: 2048
+  memMb: 4096
 
 install:
   skills:

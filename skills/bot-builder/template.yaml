@@ -6,7 +6,7 @@ id: bot-builder
 name: Строитель ботов
 tagline: Расскажи, какой бот нужен — соберу и запущу, тебе останется только пользоваться.
 category: bots
-tier: premium
+tier: free
 model: gpt-5.5
 
 resources:

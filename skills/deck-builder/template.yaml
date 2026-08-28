@@ -5,7 +5,7 @@ id: deck-builder
 name: Мастер презентаций
 tagline: Назови тему — сделаю мощную презентацию с ресёрчем и картинками, отдам в HTML, PDF и PPTX.
 category: marketing
-tier: premium
+tier: free
 model: gpt-5.5
 
 resources:
